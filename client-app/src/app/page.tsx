@@ -1,9 +1,6 @@
-import Head from "next/head";
-
 export default function Home() {
   return (
     <main className="shell">
-      <Head><title>Auth Services Workspace</title></Head>
       <section className="card">
         <p className="eyebrow">OAuth 2.1 / OpenID Connect</p>
         <h1>認可フローをコードから理解する。</h1>
@@ -14,4 +11,3 @@ export default function Home() {
     </main>
   );
 }
-
