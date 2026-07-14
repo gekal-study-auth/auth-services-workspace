@@ -1,0 +1,10 @@
+.gradle/
+.gradle-user-home/
+**/build/
+client-app/node_modules/
+client-app/.next/
+client-app/.env.local
+*.tsbuildinfo
+*.iml
+.idea/
+.DS_Store
