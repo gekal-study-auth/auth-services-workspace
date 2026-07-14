@@ -11,20 +11,17 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class SecurityConfig {
-    @Bean
-    @Order(2)
-    SecurityFilterChain applicationSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
-                .formLogin(form -> form.loginPage("/login").permitAll());
-        return http.build();
-    }
+  @Bean
+  @Order(2)
+  SecurityFilterChain applicationSecurityFilterChain(HttpSecurity http) throws Exception {
+    http.authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
+        .formLogin(form -> form.loginPage("/login").permitAll());
+    return http.build();
+  }
 
-    @Bean
-    UserDetailsService userDetailsService() {
-        return new InMemoryUserDetailsManager(User.withUsername("user")
-                .password("{noop}password")
-                .roles("USER")
-                .build());
-    }
+  @Bean
+  UserDetailsService userDetailsService() {
+    return new InMemoryUserDetailsManager(
+        User.withUsername("user").password("{noop}password").roles("USER").build());
+  }
 }
-

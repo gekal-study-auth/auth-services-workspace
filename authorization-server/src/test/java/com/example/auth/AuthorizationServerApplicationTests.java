@@ -5,8 +5,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 class AuthorizationServerApplicationTests {
-    @Test
-    void contextLoads() {
-    }
+  @Test
+  void contextLoads() {}
 }
-

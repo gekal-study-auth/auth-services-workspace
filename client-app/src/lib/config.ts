@@ -10,4 +10,3 @@ export const oauthConfig = {
   clientId: required("OAUTH_CLIENT_ID", "nextjs-client"),
   redirectUri: required("OAUTH_REDIRECT_URI", "http://localhost:3000/api/auth/callback"),
 };
-

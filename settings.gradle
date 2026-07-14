@@ -1,3 +1,2 @@
 rootProject.name = 'auth-services-workspace'
 include 'authorization-server', 'resource-server'
-

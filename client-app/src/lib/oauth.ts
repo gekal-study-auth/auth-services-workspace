@@ -26,4 +26,3 @@ export function decodeJwtPayload(token: string): Record<string, unknown> {
   if (!payload) throw new Error("Invalid JWT");
   return JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as Record<string, unknown>;
 }
-

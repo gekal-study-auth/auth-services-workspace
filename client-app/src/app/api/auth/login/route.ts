@@ -24,7 +24,9 @@ export function GET() {
     code_challenge_method: "S256",
   });
 
-  const response = NextResponse.redirect(`${oauthConfig.authorizationServerUrl}/oauth2/authorize?${params}`);
+  const response = NextResponse.redirect(
+    `${oauthConfig.authorizationServerUrl}/oauth2/authorize?${params}`,
+  );
   response.cookies.set("oauth_transaction", seal(transaction), secureCookie(600));
   return response;
 }

@@ -16,7 +16,13 @@ export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
   const state = request.nextUrl.searchParams.get("state");
   const transaction = unseal<LoginTransaction>(request.cookies.get("oauth_transaction")?.value);
-  if (!code || !state || !transaction || state !== transaction.state || Date.now() - transaction.createdAt > 600_000) {
+  if (
+    !code ||
+    !state ||
+    !transaction ||
+    state !== transaction.state ||
+    Date.now() - transaction.createdAt > 600_000
+  ) {
     return NextResponse.json({ error: "Invalid or expired OAuth transaction" }, { status: 400 });
   }
 
@@ -39,7 +45,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const tokens = await tokenResponse.json() as TokenResponse;
+  const tokens = (await tokenResponse.json()) as TokenResponse;
   const idClaims = decodeJwtPayload(tokens.id_token);
   if (idClaims.nonce !== transaction.nonce) {
     return NextResponse.json({ error: "Invalid ID token nonce" }, { status: 400 });

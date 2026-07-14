@@ -92,6 +92,19 @@ npm run dev
 cd client-app && npm run typecheck && npm run build
 ```
 
+## フォーマット
+
+ルートからJavaとClientのソースをまとめて整形・検査できます。
+
+```bash
+./gradlew formatAll
+./gradlew formatCheck
+```
+
+Gradle側は専用のNode.js/npmを自動取得するため、システムの`PATH`にnpmがなくても実行できます。Client依存関係はセットアップ手順の`npm install`で事前に導入してください。
+
+個別に実行する場合は、Java側で`./gradlew spotlessApply`または`spotlessCheck`、Client側で`npm run format`または`format:check`を使用します。
+
 ## 実装上の注意
 
 - `code_verifier`とトークンはブラウザーから読めない暗号化HttpOnly Cookieで管理します。

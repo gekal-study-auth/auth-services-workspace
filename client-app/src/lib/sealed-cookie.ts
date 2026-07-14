@@ -28,4 +28,3 @@ export function unseal<T>(value: string | undefined): T | undefined {
     return undefined;
   }
 }
-

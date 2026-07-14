@@ -19,7 +19,7 @@ export default async function Dashboard() {
   if (!response.ok) redirect("/api/auth/logout");
 
   const idClaims = decodeJwtPayload(session.idToken);
-  const apiUser = await response.json() as Record<string, unknown>;
+  const apiUser = (await response.json()) as Record<string, unknown>;
 
   return (
     <main className="shell">
@@ -27,10 +27,18 @@ export default async function Dashboard() {
         <p className="eyebrow">Authenticated</p>
         <h1>ログインに成功しました。</h1>
         <div className="grid">
-          <div><h2>IDトークン</h2><pre>{JSON.stringify(idClaims, null, 2)}</pre></div>
-          <div><h2>保護APIの応答</h2><pre>{JSON.stringify(apiUser, null, 2)}</pre></div>
+          <div>
+            <h2>IDトークン</h2>
+            <pre>{JSON.stringify(idClaims, null, 2)}</pre>
+          </div>
+          <div>
+            <h2>保護APIの応答</h2>
+            <pre>{JSON.stringify(apiUser, null, 2)}</pre>
+          </div>
         </div>
-        <a className="secondary" href="/api/auth/logout">セッションを終了</a>
+        <a className="secondary" href="/api/auth/logout">
+          セッションを終了
+        </a>
       </section>
     </main>
   );
