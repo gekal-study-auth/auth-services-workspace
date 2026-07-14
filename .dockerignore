@@ -8,3 +8,7 @@ client-app/node_modules
 client-app/.env.local
 *.iml
 *.tsbuildinfo
+README.md
+**/*.md
+**/src/test
+**/build/reports

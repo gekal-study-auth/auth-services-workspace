@@ -1,15 +1,21 @@
+x-db-config: &db-config
+  POSTGRES_DB: &db-name auth_services
+  POSTGRES_USER: &db-user auth_user
+  POSTGRES_PASSWORD: &db-password auth_password
+
 services:
   postgres:
-    image: postgres:17-alpine
+    image: auth-services/postgres:18.4-bookworm
+    build:
+      context: .
+      dockerfile: database/Dockerfile
     container_name: auth-services-postgres
     environment:
-      POSTGRES_DB: auth_services
-      POSTGRES_USER: auth_user
-      POSTGRES_PASSWORD: auth_password
+      <<: *db-config
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
-      - auth-postgres-data:/var/lib/postgresql/data
+      - auth-postgres18-data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U auth_user -d auth_services"]
       interval: 5s
@@ -25,9 +31,9 @@ services:
     image: auth-services/authorization-server:local
     container_name: auth-services-authorization-server
     environment:
-      AUTH_DB_URL: jdbc:postgresql://postgres:5432/auth_services
-      AUTH_DB_USERNAME: auth_user
-      AUTH_DB_PASSWORD: auth_password
+      AUTH_DB_URL: &db-url jdbc:postgresql://postgres:5432/auth_services
+      AUTH_DB_USERNAME: *db-user
+      AUTH_DB_PASSWORD: *db-password
     ports:
       - "${AUTHORIZATION_SERVER_PORT:-9000}:9000"
     depends_on:
@@ -40,6 +46,7 @@ services:
       retries: 20
       start_period: 10s
     restart: unless-stopped
+    init: true
 
   resource-server:
     build:
@@ -62,6 +69,7 @@ services:
       retries: 20
       start_period: 10s
     restart: unless-stopped
+    init: true
 
   client-app:
     build:
@@ -98,4 +106,4 @@ services:
     restart: unless-stopped
 
 volumes:
-  auth-postgres-data:
+  auth-postgres18-data:

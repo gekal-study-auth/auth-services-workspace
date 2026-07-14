@@ -1,21 +1,30 @@
-FROM node:24-alpine AS dependencies
+# syntax=docker/dockerfile:1
+
+FROM node:24.12.0-bookworm-slim AS dependencies
 WORKDIR /app
 COPY client-app/package.json client-app/package-lock.json ./
-RUN npm ci --ignore-scripts
+RUN --mount=type=cache,target=/root/.npm npm ci --ignore-scripts
 
-FROM node:24-alpine AS builder
+FROM node:24.12.0-bookworm-slim AS builder
 WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY client-app ./
 RUN npm run build
 
-FROM node:24-alpine AS runner
+FROM node:24.12.0-bookworm-slim AS runner
 WORKDIR /app
-ENV NODE_ENV=production
-RUN addgroup -S nextjs && adduser -S nextjs -G nextjs
-COPY --from=builder --chown=nextjs:nextjs /app/package.json /app/package-lock.json ./
-COPY --from=builder --chown=nextjs:nextjs /app/node_modules ./node_modules
-COPY --from=builder --chown=nextjs:nextjs /app/.next ./.next
-USER nextjs
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    HOSTNAME=0.0.0.0 \
+    PORT=3000
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && rm -rf /usr/local/lib/node_modules/npm \
+    && rm -f /usr/local/bin/npm /usr/local/bin/npx \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=builder --chown=node:node /app/.next/standalone ./
+COPY --from=builder --chown=node:node /app/.next/static ./.next/static
+USER node
 EXPOSE 3000
-CMD ["npm", "start"]
+CMD ["node", "server.js"]

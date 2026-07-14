@@ -120,6 +120,16 @@ RESOURCE_SERVER_PORT=8081 docker compose up -d
 
 上書き可能な変数は`POSTGRES_PORT`、`AUTHORIZATION_SERVER_PORT`、`RESOURCE_SERVER_PORT`、`CLIENT_APP_PORT`です。OAuthのredirect URIが登録済みのため、通常はAuthorization ServerとClient Appのポートをそれぞれ`9000`、`3000`のまま使用してください。
 
+コンテナイメージは次の方針で構成しています。
+
+- PostgreSQLは`18.4-bookworm`をベースに、OSパッケージをビルド時に更新します。
+- Spring BootサービスはTemurin 17 / Ubuntu 24.04 LTS（Noble）を使用し、layered JARとして依存関係とアプリケーションを分離します。
+- JavaランタイムのOSパッケージはビルド時に更新し、非rootユーザーで実行します。
+- Client AppはNode.js `24.12.0-bookworm-slim`でビルドし、Next.js standalone成果物のみを実行イメージへ格納します。
+- BuildKitのGradle・npmキャッシュを使用し、再ビルド時の依存取得を抑えます。
+
+PostgreSQL 17で使用していた`auth-postgres-data`ボリュームは自動削除せず保持されます。PostgreSQL 18は`auth-postgres18-data`を使用します。旧DBのデータが必要な場合は、旧コンテナからdumpして新DBへrestoreしてください。
+
 ## エンドポイント
 
 | コンポーネント | エンドポイント | 用途 |
