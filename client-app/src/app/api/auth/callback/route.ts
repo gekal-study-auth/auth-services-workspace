@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Invalid or expired OAuth transaction" }, { status: 400 });
   }
 
-  const tokenResponse = await fetch(`${oauthConfig.authorizationServerUrl}/oauth2/token`, {
+  const tokenResponse = await fetch(`${oauthConfig.authorizationServerInternalUrl}/oauth2/token`, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({

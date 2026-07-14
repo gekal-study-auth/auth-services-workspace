@@ -1,0 +1,10 @@
+.git
+.gradle
+.gradle-user-home
+.idea
+**/build
+client-app/.next
+client-app/node_modules
+client-app/.env.local
+*.iml
+*.tsbuildinfo

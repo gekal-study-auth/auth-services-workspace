@@ -11,7 +11,13 @@ public class SecurityConfig {
   @Bean
   @Order(2)
   SecurityFilterChain applicationSecurityFilterChain(HttpSecurity http) throws Exception {
-    http.authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
+    http.authorizeHttpRequests(
+            authorize ->
+                authorize
+                    .requestMatchers("/actuator/health")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
         .formLogin(form -> form.loginPage("/login").permitAll());
     return http.build();
   }

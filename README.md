@@ -103,6 +103,23 @@ docker compose exec postgres psql -U auth_user -d auth_services \
 
 DBを停止する場合は`docker compose down`を使用します。データボリュームも削除して初期化する場合のみ`docker compose down -v`を使用してください。
 
+### 全サービスをDockerで起動
+
+PostgreSQLを含む全サービスは、ルートからまとめてビルド・起動できます。
+
+```bash
+docker compose up -d --build
+docker compose ps
+```
+
+公開ポートが他のプロセスと競合する場合は、起動時に上書きできます。
+
+```bash
+RESOURCE_SERVER_PORT=8081 docker compose up -d
+```
+
+上書き可能な変数は`POSTGRES_PORT`、`AUTHORIZATION_SERVER_PORT`、`RESOURCE_SERVER_PORT`、`CLIENT_APP_PORT`です。OAuthのredirect URIが登録済みのため、通常はAuthorization ServerとClient Appのポートをそれぞれ`9000`、`3000`のまま使用してください。
+
 ## エンドポイント
 
 | コンポーネント | エンドポイント | 用途 |

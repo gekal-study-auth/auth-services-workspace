@@ -6,5 +6,11 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:9000
+          issuer-uri: ${AUTHORIZATION_SERVER_ISSUER:http://localhost:9000}
+          jwk-set-uri: ${AUTHORIZATION_SERVER_JWK_SET_URI:http://localhost:9000/oauth2/jwks}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
