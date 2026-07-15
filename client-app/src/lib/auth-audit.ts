@@ -13,6 +13,14 @@ export type AuthEvent = {
   occurredAt: Date;
 };
 
+export type AuthEventPage = {
+  events: AuthEvent[];
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+};
+
 const pool = new Pool({
   connectionString:
     process.env.CLIENT_DB_URL ??
@@ -69,9 +77,22 @@ export async function recordAuthEventSafely(
   }
 }
 
-export async function listRecentAuthEvents(subject: string, limit = 10): Promise<AuthEvent[]> {
+export async function listAuthEventsPage(
+  subject: string,
+  requestedPage = 1,
+  requestedPageSize = 10,
+): Promise<AuthEventPage> {
+  const pageSize = Math.min(Math.max(Math.trunc(requestedPageSize) || 10, 1), 50);
+  const page = Math.max(Math.trunc(requestedPage) || 1, 1);
   try {
     await ensureSchema();
+    const countResult = await pool.query<{ count: string }>(
+      `SELECT COUNT(*)::text AS count FROM client_app.auth_event WHERE subject = $1`,
+      [subject],
+    );
+    const totalItems = Number.parseInt(countResult.rows[0]?.count ?? "0", 10);
+    const totalPages = Math.max(Math.ceil(totalItems / pageSize), 1);
+    const normalizedPage = Math.min(page, totalPages);
     const result = await pool.query<AuthEvent>(
       `
         SELECT id::text AS "id",
@@ -83,12 +104,19 @@ export async function listRecentAuthEvents(subject: string, limit = 10): Promise
         WHERE subject = $1
         ORDER BY occurred_at DESC, id DESC
         LIMIT $2
+        OFFSET $3
       `,
-      [subject, Math.min(Math.max(limit, 1), 50)],
+      [subject, pageSize, (normalizedPage - 1) * pageSize],
     );
-    return result.rows;
+    return {
+      events: result.rows,
+      page: normalizedPage,
+      pageSize,
+      totalItems,
+      totalPages,
+    };
   } catch (error) {
     console.error("Failed to load auth audit events", { subject, error });
-    return [];
+    return { events: [], page: 1, pageSize, totalItems: 0, totalPages: 1 };
   }
 }
