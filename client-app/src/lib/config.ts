@@ -5,6 +5,7 @@ function required(name: string, fallback?: string): string {
 }
 
 export const oauthConfig = {
+  appBaseUrl: required("APP_BASE_URL", "http://localhost:3000"),
   authorizationServerUrl: required("AUTHORIZATION_SERVER_URL", "http://localhost:9000"),
   authorizationServerInternalUrl: required(
     "AUTHORIZATION_SERVER_INTERNAL_URL",

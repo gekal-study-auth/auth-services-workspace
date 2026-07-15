@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
     idToken: tokens.id_token,
     expiresAt: Date.now() + tokens.expires_in * 1000,
   };
-  const response = NextResponse.redirect(new URL("/dashboard", request.url));
+  const response = NextResponse.redirect(new URL("/dashboard", oauthConfig.appBaseUrl));
   response.cookies.set("auth_session", seal(session), secureCookie(tokens.expires_in));
   response.cookies.set("oauth_transaction", "", secureCookie(0));
   return response;

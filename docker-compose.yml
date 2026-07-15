@@ -81,6 +81,7 @@ services:
     image: auth-services/client-app:local
     container_name: auth-services-client-app
     environment:
+      APP_BASE_URL: https://client-app.local.gekal.cn
       AUTHORIZATION_SERVER_URL: https://authorization-server.local.gekal.cn
       AUTHORIZATION_SERVER_INTERNAL_URL: http://authorization-server:9000
       RESOURCE_SERVER_URL: http://resource-server:8080
