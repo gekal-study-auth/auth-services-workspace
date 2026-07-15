@@ -34,6 +34,8 @@ services:
       AUTH_DB_URL: &db-url jdbc:postgresql://postgres:5432/auth_services
       AUTH_DB_USERNAME: *db-user
       AUTH_DB_PASSWORD: *db-password
+      AUTH_ISSUER: https://authorization-server.local.gekal.cn
+      SERVER_FORWARD_HEADERS_STRATEGY: framework
     ports:
       - "${AUTHORIZATION_SERVER_PORT:-9000}:9000"
     depends_on:
@@ -55,8 +57,9 @@ services:
     image: auth-services/resource-server:local
     container_name: auth-services-resource-server
     environment:
-      AUTHORIZATION_SERVER_ISSUER: http://localhost:9000
+      AUTHORIZATION_SERVER_ISSUER: https://authorization-server.local.gekal.cn
       AUTHORIZATION_SERVER_JWK_SET_URI: http://authorization-server:9000/oauth2/jwks
+      SERVER_FORWARD_HEADERS_STRATEGY: framework
     ports:
       - "${RESOURCE_SERVER_PORT:-8080}:8080"
     depends_on:
@@ -78,11 +81,11 @@ services:
     image: auth-services/client-app:local
     container_name: auth-services-client-app
     environment:
-      AUTHORIZATION_SERVER_URL: http://localhost:9000
+      AUTHORIZATION_SERVER_URL: https://authorization-server.local.gekal.cn
       AUTHORIZATION_SERVER_INTERNAL_URL: http://authorization-server:9000
       RESOURCE_SERVER_URL: http://resource-server:8080
       OAUTH_CLIENT_ID: nextjs-client
-      OAUTH_REDIRECT_URI: http://localhost:3000/api/auth/callback
+      OAUTH_REDIRECT_URI: https://client-app.local.gekal.cn/api/auth/callback
       SESSION_SECRET: local-compose-only-6c1837e2bfa44a8596f5d17998a735ad
     ports:
       - "${CLIENT_APP_PORT:-3000}:3000"
@@ -104,6 +107,21 @@ services:
       retries: 20
       start_period: 10s
     restart: unless-stopped
+
+  nginx:
+    image: gekal/nginx-local-domains:latest-gekal
+    container_name: auth-services-nginx
+    ports:
+      - "${HTTPS_PORT:-443}:443"
+    depends_on:
+      authorization-server:
+        condition: service_healthy
+      resource-server:
+        condition: service_healthy
+      client-app:
+        condition: service_healthy
+    restart: unless-stopped
+    init: true
 
 volumes:
   auth-postgres18-data:

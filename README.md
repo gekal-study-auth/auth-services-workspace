@@ -74,7 +74,11 @@ cd client-app
 npm run dev
 ```
 
-[http://localhost:3000](http://localhost:3000)を開き、次の検証用ユーザーでログインします。
+[https://client-app.local.gekal.cn](https://client-app.local.gekal.cn)を開き、次の検証用ユーザーでログインします。`gekal/nginx-local-domains:latest-gekal`に同梱されたローカル開発用証明書を使用し、次のHTTPSドメインを提供します。
+
+- `https://authorization-server.local.gekal.cn`
+- `https://resource-server.local.gekal.cn`
+- `https://client-app.local.gekal.cn`
 
 - ユーザー名: `user`
 - パスワード: `password`

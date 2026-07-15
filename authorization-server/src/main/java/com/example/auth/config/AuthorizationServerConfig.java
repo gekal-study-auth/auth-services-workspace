@@ -10,6 +10,7 @@ import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -69,7 +70,8 @@ public class AuthorizationServerConfig {
   }
 
   @Bean
-  AuthorizationServerSettings authorizationServerSettings() {
-    return AuthorizationServerSettings.builder().issuer("http://localhost:9000").build();
+  AuthorizationServerSettings authorizationServerSettings(
+      @Value("${auth.issuer:http://localhost:9000}") String issuer) {
+    return AuthorizationServerSettings.builder().issuer(issuer).build();
   }
 }

@@ -26,24 +26,29 @@ public class PersistenceConfig {
   @Bean
   RegisteredClientRepository registeredClientRepository(JdbcOperations jdbcOperations) {
     JdbcRegisteredClientRepository repository = new JdbcRegisteredClientRepository(jdbcOperations);
-    if (repository.findByClientId("nextjs-client") == null) {
-      repository.save(
-          RegisteredClient.withId(UUID.randomUUID().toString())
-              .clientId("nextjs-client")
-              .clientName("Next.js BFF Client")
-              .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
-              .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-              .redirectUri("http://localhost:3000/api/auth/callback")
-              .postLogoutRedirectUri("http://localhost:3000/")
-              .scope(OidcScopes.OPENID)
-              .scope(OidcScopes.PROFILE)
-              .clientSettings(
-                  ClientSettings.builder()
-                      .requireProofKey(true)
-                      .requireAuthorizationConsent(true)
-                      .build())
-              .build());
-    }
+    RegisteredClient existing = repository.findByClientId("nextjs-client");
+    RegisteredClient.Builder client =
+        existing == null
+            ? RegisteredClient.withId(UUID.randomUUID().toString())
+            : RegisteredClient.from(existing);
+    repository.save(
+        client
+            .clientId("nextjs-client")
+            .clientName("Next.js BFF Client")
+            .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
+            .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+            .redirectUri("http://localhost:3000/api/auth/callback")
+            .redirectUri("https://client-app.local.gekal.cn/api/auth/callback")
+            .postLogoutRedirectUri("http://localhost:3000/")
+            .postLogoutRedirectUri("https://client-app.local.gekal.cn/")
+            .scope(OidcScopes.OPENID)
+            .scope(OidcScopes.PROFILE)
+            .clientSettings(
+                ClientSettings.builder()
+                    .requireProofKey(true)
+                    .requireAuthorizationConsent(true)
+                    .build())
+            .build());
     return repository;
   }
 
