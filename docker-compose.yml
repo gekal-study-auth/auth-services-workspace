@@ -109,7 +109,10 @@ services:
     restart: unless-stopped
 
   nginx:
-    image: gekal/nginx-local-domains:latest-gekal
+    image: auth-services/nginx:local
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
     container_name: auth-services-nginx
     ports:
       - "${HTTPS_PORT:-443}:443"
