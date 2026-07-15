@@ -94,6 +94,7 @@ services:
       OAUTH_CLIENT_ID: nextjs-client
       OAUTH_REDIRECT_URI: https://client-app.local.gekal.cn/api/auth/callback
       SESSION_SECRET: local-compose-only-6c1837e2bfa44a8596f5d17998a735ad
+      LOG_OAUTH_TOKENS: "true"
     ports:
       - "${CLIENT_APP_PORT:-3000}:3000"
     depends_on:

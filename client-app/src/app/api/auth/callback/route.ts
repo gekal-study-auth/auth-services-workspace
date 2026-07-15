@@ -11,7 +11,13 @@ import { authInfo, authWarn } from "../../../../lib/auth-log";
 
 export const runtime = "nodejs";
 
-type TokenResponse = { access_token?: string; id_token?: string; expires_in?: number };
+type TokenResponse = {
+  access_token?: string;
+  id_token?: string;
+  token_type?: string;
+  expires_in?: number;
+  scope?: string;
+};
 
 function redirectWithAuthError(errorCode: string) {
   const response = NextResponse.redirect(
@@ -89,6 +95,16 @@ export async function GET(request: NextRequest) {
     issuer: idClaims.iss,
     audience: idClaims.aud,
   });
+  if (process.env.LOG_OAUTH_TOKENS === "true") {
+    authInfo("oidc_tokens_received", {
+      tokenType: tokens.token_type,
+      expiresIn: tokens.expires_in,
+      scope: tokens.scope,
+      accessToken: tokens.access_token,
+      idToken: tokens.id_token,
+      idTokenClaims: idClaims,
+    });
+  }
 
   const session: TokenSession = {
     accessToken: tokens.access_token,
