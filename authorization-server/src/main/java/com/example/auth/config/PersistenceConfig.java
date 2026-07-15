@@ -51,6 +51,7 @@ public class PersistenceConfig {
             .postLogoutRedirectUri("https://client-app.local.gekal.cn/")
             .scope(OidcScopes.OPENID)
             .scope(OidcScopes.PROFILE)
+            .scope("demo.read")
             .clientSettings(
                 ClientSettings.builder()
                     .requireProofKey(true)

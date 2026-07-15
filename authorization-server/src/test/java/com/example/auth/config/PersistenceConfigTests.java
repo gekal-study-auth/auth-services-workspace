@@ -66,7 +66,7 @@ class PersistenceConfigTests {
         .containsExactly(ClientAuthenticationMethod.NONE);
     assertThat(client.getAuthorizationGrantTypes())
         .containsExactly(AuthorizationGrantType.AUTHORIZATION_CODE);
-    assertThat(client.getScopes()).containsExactlyInAnyOrder("openid", "profile");
+    assertThat(client.getScopes()).containsExactlyInAnyOrder("openid", "profile", "demo.read");
     assertThat(client.getClientSettings().isRequireProofKey()).isTrue();
     assertThat(client.getClientSettings().isRequireAuthorizationConsent()).isTrue();
   }

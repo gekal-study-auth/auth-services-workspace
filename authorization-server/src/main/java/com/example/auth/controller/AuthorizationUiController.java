@@ -23,8 +23,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthorizationUiController {
   private static final Map<String, String> SCOPE_DESCRIPTIONS =
       Map.of(
-          OidcScopes.OPENID, "あなたを識別するためのIDトークンを発行します。",
-          OidcScopes.PROFILE, "表示名、ユーザー名、プロフィール画像をClient Appへ共有します。");
+          OidcScopes.OPENID,
+          "あなたを識別するためのIDトークンを発行します。",
+          OidcScopes.PROFILE,
+          "表示名、ユーザー名、プロフィール画像をClient Appへ共有します。",
+          "demo.read",
+          "任意Scopeの動作確認用です。未選択でもデモアプリを実行できます。");
 
   private final RegisteredClientRepository clients;
   private final OAuth2AuthorizationConsentService consents;
@@ -62,7 +66,9 @@ public class AuthorizationUiController {
                         name,
                         SCOPE_DESCRIPTIONS.getOrDefault(name, "この権限をClient Appへ許可します。"),
                         previouslyApproved.contains(name),
-                        "openid".equals(name)))
+                        Set.of("openid", "profile").contains(name),
+                        "openid".equals(name),
+                        Set.of("openid", "profile").contains(name)))
             .toList();
     return ResponseEntity.ok(
         new ConsentContext(
@@ -82,7 +88,13 @@ public class AuthorizationUiController {
 
   record LoginContext(boolean authenticated, String username, CsrfView csrf) {}
 
-  record ScopeView(String name, String description, boolean previouslyApproved, boolean required) {}
+  record ScopeView(
+      String name,
+      String description,
+      boolean previouslyApproved,
+      boolean required,
+      boolean locked,
+      boolean defaultSelected) {}
 
   record ConsentContext(
       String clientId,

@@ -32,7 +32,7 @@ describe("OAuth 2.1 Authorization Code + PKCE", () => {
     );
 
     assert.equal(params.get("response_type"), "code");
-    assert.equal(params.get("scope"), "openid profile");
+    assert.equal(params.get("scope"), "openid profile demo.read");
     assert.equal(params.get("state"), transaction.state);
     assert.equal(params.get("nonce"), transaction.nonce);
     assert.equal(params.get("code_challenge_method"), "S256");

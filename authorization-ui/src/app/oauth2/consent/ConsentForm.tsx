@@ -26,6 +26,8 @@ type ConsentContext = {
     description: string;
     previouslyApproved: boolean;
     required: boolean;
+    locked: boolean;
+    defaultSelected: boolean;
   }>;
   csrf: { parameterName: string; token: string };
 };
@@ -34,6 +36,7 @@ export function ConsentForm() {
   const query = useSearchParams().toString();
   const [context, setContext] = useState<ConsentContext>();
   const [loadError, setLoadError] = useState(false);
+  const [selectedScopes, setSelectedScopes] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetch(`/ui-api/consent-context?${query}`, { cache: "no-store", credentials: "same-origin" })
@@ -41,7 +44,14 @@ export function ConsentForm() {
         if (!response.ok) throw new Error(String(response.status));
         return response.json() as Promise<ConsentContext>;
       })
-      .then(setContext)
+      .then((loaded) => {
+        setContext(loaded);
+        setSelectedScopes(
+          new Set(
+            loaded.scopes.filter((scope) => scope.defaultSelected).map((scope) => scope.name),
+          ),
+        );
+      })
       .catch(() => setLoadError(true));
   }, [query]);
 
@@ -72,21 +82,35 @@ export function ConsentForm() {
                   variant="outlined"
                   sx={{ px: 1.5, py: 1, borderColor: "divider" }}
                 >
-                  {scope.required && <input type="hidden" name="scope" value={scope.name} />}
+                  {scope.locked && <input type="hidden" name="scope" value={scope.name} />}
                   <FormControlLabel
                     control={
                       <Checkbox
-                        name={scope.required ? undefined : "scope"}
+                        name={scope.locked ? undefined : "scope"}
                         value={scope.name}
-                        defaultChecked
-                        disabled={scope.required}
+                        checked={selectedScopes.has(scope.name)}
+                        disabled={scope.locked}
+                        onChange={(event) => {
+                          setSelectedScopes((current) => {
+                            const next = new Set(current);
+                            if (event.target.checked) next.add(scope.name);
+                            else next.delete(scope.name);
+                            return next;
+                          });
+                        }}
                       />
                     }
                     label={
                       <Box>
                         <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
                           <Typography sx={{ fontWeight: 800 }}>{scope.name}</Typography>
-                          {scope.required && <Chip label="必須" size="small" color="primary" />}
+                          <Chip
+                            label={
+                              scope.locked ? "OIDC必須" : scope.required ? "アプリ必須" : "任意"
+                            }
+                            size="small"
+                            color={scope.required ? "primary" : "default"}
+                          />
                         </Stack>
                         <Typography variant="body2" color="text.secondary">
                           {scope.description}
@@ -108,11 +132,14 @@ export function ConsentForm() {
             <Button
               form="approve-consent"
               type="submit"
+              disabled={context.scopes.some(
+                (scope) => scope.required && !selectedScopes.has(scope.name),
+              )}
               variant="contained"
               fullWidth
               sx={{ whiteSpace: "nowrap" }}
             >
-              許可して続行
+              許可して実行
             </Button>
             <Box component="form" method="post" action="/oauth2/authorize">
               <input type="hidden" name="client_id" value={context.clientId} />

@@ -20,7 +20,7 @@ export function createAuthorizationParams(
     response_type: "code",
     client_id: clientId,
     redirect_uri: redirectUri,
-    scope: "openid profile",
+    scope: "openid profile demo.read",
     state: transaction.state,
     nonce: transaction.nonce,
     code_challenge: codeChallenge(transaction.codeVerifier),
