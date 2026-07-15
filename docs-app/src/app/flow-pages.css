@@ -415,6 +415,16 @@
   color: var(--flow-accent);
   font-weight: 750;
 }
+.messageRow.isRedirect .messageLabel::before {
+  margin-right: 6px;
+  padding: 2px 4px;
+  border: 1px solid color-mix(in srgb, var(--flow-accent) 28%, var(--line));
+  border-radius: 4px;
+  color: var(--flow-accent);
+  content: "302";
+  font-family: ui-monospace, monospace;
+  font-size: 0.48rem;
+}
 .messageRow.isActive .messageLine {
   background: color-mix(in srgb, var(--flow-accent) 75%, white);
   box-shadow: 0 0 10px color-mix(in srgb, var(--flow-accent) 32%, transparent);

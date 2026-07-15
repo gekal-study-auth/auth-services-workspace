@@ -64,7 +64,7 @@ export function AnimatedFlowDiagram({ protocol }: { protocol: Protocol }) {
               };
               return (
                 <button
-                  className={`messageRow ${index === active ? "isActive" : ""}`}
+                  className={`messageRow ${index === active ? "isActive" : ""} ${item.label.includes("Clientへ戻る") ? "isRedirect" : ""}`}
                   key={`${item.label}-${index}`}
                   onClick={() => choose(index)}
                   style={style}
