@@ -12,7 +12,7 @@ public class ResourceServerConfig {
     http.authorizeHttpRequests(
             authorize ->
                 authorize
-                    .requestMatchers("/actuator/health")
+                    .requestMatchers("/", "/actuator/health")
                     .permitAll()
                     .requestMatchers("/api/user")
                     .hasAuthority("SCOPE_profile")
