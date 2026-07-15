@@ -6,6 +6,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.example.api.config.ResourceServerConfig;
+import java.time.Instant;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -27,11 +29,39 @@ class UserControllerTests {
 
   @Test
   void returnsClaimsForProfileScope() throws Exception {
+    var issuedAt = Instant.parse("2026-01-01T00:00:00Z");
+    var expiresAt = issuedAt.plusSeconds(300);
     mockMvc
         .perform(
             get("/api/user")
-                .with(jwt().jwt(token -> token.subject("user")).authorities(() -> "SCOPE_profile")))
+                .with(
+                    jwt()
+                        .jwt(
+                            token ->
+                                token
+                                    .subject("user")
+                                    .issuer("https://authorization.example")
+                                    .issuedAt(issuedAt)
+                                    .expiresAt(expiresAt)
+                                    .claim("scope", List.of("profile")))
+                        .authorities(() -> "SCOPE_profile")))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.subject").value("user"));
+        .andExpect(jsonPath("$.subject").value("user"))
+        .andExpect(jsonPath("$.issuer").value("https://authorization.example"))
+        .andExpect(jsonPath("$.scopes[0]").value("profile"))
+        .andExpect(jsonPath("$.issuedAt").exists())
+        .andExpect(jsonPath("$.expiresAt").exists());
+  }
+
+  @Test
+  void rejectsAuthenticatedTokenWithoutProfileScope() throws Exception {
+    mockMvc.perform(get("/api/user").with(jwt())).andExpect(status().isForbidden());
+  }
+
+  @Test
+  void rejectsOpenidScopeBecauseItDoesNotAuthorizeTheApi() throws Exception {
+    mockMvc
+        .perform(get("/api/user").with(jwt().authorities(() -> "SCOPE_openid")))
+        .andExpect(status().isForbidden());
   }
 }

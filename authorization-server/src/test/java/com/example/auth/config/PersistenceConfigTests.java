@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
@@ -42,6 +43,35 @@ class PersistenceConfigTests {
             jdbcTemplate.queryForObject(
                 "select count(*) from oauth2_registered_client", Integer.class))
         .isEqualTo(1);
+  }
+
+  @Test
+  void registersAnOidcAuthorizationCodeClientWithMandatoryPkce() {
+    var client = clients.findByClientId("nextjs-client");
+
+    assertThat(client).isNotNull();
+    assertThat(client.getClientAuthenticationMethods())
+        .containsExactly(ClientAuthenticationMethod.NONE);
+    assertThat(client.getAuthorizationGrantTypes())
+        .containsExactly(AuthorizationGrantType.AUTHORIZATION_CODE);
+    assertThat(client.getScopes()).containsExactlyInAnyOrder("openid", "profile");
+    assertThat(client.getClientSettings().isRequireProofKey()).isTrue();
+    assertThat(client.getClientSettings().isRequireAuthorizationConsent()).isTrue();
+  }
+
+  @Test
+  void registersOnlyTheDocumentedExactRedirectAndLogoutUris() {
+    var client = clients.findByClientId("nextjs-client");
+
+    assertThat(client.getRedirectUris())
+        .containsExactlyInAnyOrder(
+            "http://localhost:3000/api/auth/callback",
+            "https://client-app.local.gekal.cn/api/auth/callback");
+    assertThat(client.getPostLogoutRedirectUris())
+        .containsExactlyInAnyOrder("http://localhost:3000/", "https://client-app.local.gekal.cn/");
+    assertThat(client.getRedirectUris())
+        .doesNotContain(
+            "https://client-app.local.gekal.cn/", "https://client-app.local.gekal.cn/*");
   }
 
   @Test

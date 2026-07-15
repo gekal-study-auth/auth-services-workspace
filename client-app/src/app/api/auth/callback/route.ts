@@ -3,6 +3,11 @@ import { NextResponse } from "next/server";
 import { secureCookie } from "../../../../lib/cookie-options";
 import { oauthConfig } from "../../../../lib/config";
 import { decodeJwtPayload, type LoginTransaction, type TokenSession } from "../../../../lib/oauth";
+import {
+  createTokenRequest,
+  hasExpectedNonce,
+  isValidTransaction,
+} from "../../../../lib/oauth-flow";
 import { seal, unseal } from "../../../../lib/sealed-cookie";
 
 export const runtime = "nodejs";
@@ -22,7 +27,7 @@ export async function GET(request: NextRequest) {
   const state = request.nextUrl.searchParams.get("state");
   const transaction = unseal<LoginTransaction>(request.cookies.get("oauth_transaction")?.value);
   if (error) {
-    const validState = Boolean(state && transaction && state === transaction.state);
+    const validState = isValidTransaction(transaction, state);
     const errorCode = validState && error === "access_denied" ? "access_denied" : "oauth_error";
     return redirectWithAuthError(errorCode);
   }
@@ -33,7 +38,7 @@ export async function GET(request: NextRequest) {
     !state ||
     !transaction ||
     state !== transaction.state ||
-    Date.now() - transaction.createdAt > 600_000
+    !isValidTransaction(transaction, state)
   ) {
     return redirectWithAuthError("invalid_transaction");
   }
@@ -41,13 +46,7 @@ export async function GET(request: NextRequest) {
   const tokenResponse = await fetch(`${oauthConfig.authorizationServerInternalUrl}/oauth2/token`, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      grant_type: "authorization_code",
-      client_id: oauthConfig.clientId,
-      redirect_uri: oauthConfig.redirectUri,
-      code,
-      code_verifier: transaction.codeVerifier,
-    }),
+    body: createTokenRequest(code, transaction, oauthConfig.clientId, oauthConfig.redirectUri),
     cache: "no-store",
   });
   if (!tokenResponse.ok) {
@@ -59,7 +58,7 @@ export async function GET(request: NextRequest) {
 
   const tokens = (await tokenResponse.json()) as TokenResponse;
   const idClaims = decodeJwtPayload(tokens.id_token);
-  if (idClaims.nonce !== transaction.nonce) {
+  if (!hasExpectedNonce(idClaims, transaction)) {
     return NextResponse.json({ error: "Invalid ID token nonce" }, { status: 400 });
   }
 
