@@ -8,6 +8,8 @@ export type FlowStep = {
   detail: string;
   security: string;
   message: string;
+  requestExample?: string;
+  responseExample?: string;
 };
 export type Protocol = {
   slug: string;

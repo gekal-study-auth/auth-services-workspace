@@ -2,6 +2,7 @@
 
 import type { CSSProperties } from "react";
 import { useEffect, useState } from "react";
+import { getFlowExamples } from "../lib/flow-examples";
 import type { Protocol } from "../lib/protocols";
 
 type FlowStyle = CSSProperties & { "--start": number; "--width": number; "--reverse": number };
@@ -10,6 +11,7 @@ export function AnimatedFlowDiagram({ protocol }: { protocol: Protocol }) {
   const [active, setActive] = useState(0);
   const [playing, setPlaying] = useState(true);
   const step = protocol.steps[active];
+  const examples = getFlowExamples(protocol, step);
   const choose = (index: number) => {
     setActive(index);
     setPlaying(false);
@@ -90,10 +92,35 @@ export function AnimatedFlowDiagram({ protocol }: { protocol: Protocol }) {
           <p>{step.detail}</p>
         </div>
         <div className="messageSample">
-          <small>MESSAGE</small>
-          <code>{step.message}</code>
           <small>SECURITY</small>
           <p>{step.security}</p>
+        </div>
+        <div className="apiExchange">
+          <div className="apiExchangeHeader">
+            <small>REQUEST / RESPONSE EXAMPLE</small>
+            <span>{examples.transport}</span>
+          </div>
+          <div className="apiExampleGrid">
+            <article>
+              <div>
+                <span className="requestDot" />
+                REQUEST
+              </div>
+              <pre>
+                <code>{examples.request}</code>
+              </pre>
+            </article>
+            <article>
+              <div>
+                <span className="responseDot" />
+                レスポンス
+              </div>
+              <pre>
+                <code>{examples.response}</code>
+              </pre>
+            </article>
+          </div>
+          <p>※ トークン、challenge、Credential IDなどは説明用に短縮したサンプル値です。</p>
         </div>
       </div>
       <div
