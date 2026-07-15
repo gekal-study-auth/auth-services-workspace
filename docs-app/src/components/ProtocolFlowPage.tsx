@@ -1,4 +1,5 @@
 import { AnimatedFlowDiagram } from "./AnimatedFlowDiagram";
+import { BeginnerFlowGuide } from "./BeginnerFlowGuide";
 import type { Protocol } from "../lib/protocols";
 import { protocols } from "../lib/protocols";
 import { specifications } from "../lib/specs";
@@ -49,6 +50,7 @@ export function ProtocolFlowPage({ protocol }: { protocol: Protocol }) {
         </div>
       </header>
       <main className="flowMain">
+        <BeginnerFlowGuide protocol={protocol} />
         <AnimatedFlowDiagram protocol={protocol} />
         <section className="comparisonNav">
           <div>

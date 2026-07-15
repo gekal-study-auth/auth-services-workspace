@@ -1,6 +1,11 @@
 import type { FlowStep, Protocol } from "./protocols";
 
-export type FlowExamples = { request: string; response: string; transport: string };
+export type FlowExamples = {
+  request: string;
+  response: string;
+  transport: string;
+  handoff?: string;
+};
 
 const jsonHeaders = "Content-Type: application/json\nAccept: application/json";
 const formHeaders = "Content-Type: application/x-www-form-urlencoded\nAccept: application/json";
@@ -36,7 +41,9 @@ function oauthExamples(step: FlowStep): FlowExamples {
     return {
       transport: "Browser → Authorization Server",
       request: `POST /login\nContent-Type: application/x-www-form-urlencoded\n\nusername=user&password=********`,
-      response: `HTTP/1.1 302 Found\nLocation: /oauth2/authorize?continue`,
+      response: `HTTP/1.1 302 Found\nLocation: https://client.example/api/auth/callback?code=SplxlOBeZQQYbYS6WxSbIA&state=af0ifjsldkj\nCache-Control: no-store`,
+      handoff:
+        "Authorization Serverがcodeを新しく発行し、Locationのクエリへ入れます。stateは最初の認可リクエストでClientが送った値を、そのまま返したものです。ブラウザはこのLocationへ自動的に移動するため、次のステップでは同じcodeとstateを持つGETリクエストが発生します。",
     };
   }
   if (/認可コード|コードを返却/.test(text)) {
@@ -44,6 +51,8 @@ function oauthExamples(step: FlowStep): FlowExamples {
       transport: "Authorization Server → Client callback",
       request: `GET /api/auth/callback?code=SplxlOBeZQQYbYS6WxSbIA&state=af0ifjsldkj\nCookie: oauth_transaction=sealed`,
       response: `HTTP/1.1 302 Found\nLocation: /dashboard\nSet-Cookie: oauth_transaction=; Max-Age=0; HttpOnly; Secure; SameSite=Lax`,
+      handoff:
+        "このcode=SplxlOBeZQQYbYS6WxSbIAとstate=af0ifjsldkjは、直前の302レスポンスのLocationに入っていた値です。ブラウザがリダイレクト先をGETしたことでClient BFFへ届きました。Clientはstateが開始時の保存値と同じか確認します。",
     };
   }
   if (/トークン交換|verifierを提示|コードを交換|更新を要求/.test(text)) {
@@ -54,6 +63,9 @@ function oauthExamples(step: FlowStep): FlowExamples {
         ? `POST /oauth2/token\n${formHeaders}\n\ngrant_type=refresh_token&refresh_token=def502...&client_id=nextjs-client`
         : `POST /oauth2/token\n${formHeaders}\n\ngrant_type=authorization_code&client_id=nextjs-client&code=SplxlOBeZQQYbYS6WxSbIA&redirect_uri=https%3A%2F%2Fclient.example%2Fapi%2Fauth%2Fcallback&code_verifier=dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk`,
       response: `HTTP/1.1 200 OK\n${jsonHeaders}\nCache-Control: no-store\n\n{\n  "access_token": "eyJhbGciOiJSUzI1NiJ9...",\n  "token_type": "Bearer",\n  "expires_in": 300,\n  "scope": "openid profile",\n  "id_token": "eyJraWQiOiJh..."\n}`,
+      handoff: refresh
+        ? "前回のトークン発行時に受け取って安全に保存したrefresh_tokenを使います。"
+        : "codeはコールバックURLから受け取った値です。Client BFFが同じcodeと、ログイン開始時から保管していたcode_verifierをToken Endpointへ送ります。",
     };
   }
   if (/クライアントを認証/.test(text)) {

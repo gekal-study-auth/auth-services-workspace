@@ -11,6 +11,7 @@ export function AnimatedFlowDiagram({ protocol }: { protocol: Protocol }) {
   const [active, setActive] = useState(0);
   const [playing, setPlaying] = useState(true);
   const step = protocol.steps[active];
+  const nextStep = protocol.steps[active + 1];
   const examples = getFlowExamples(protocol, step);
   const choose = (index: number) => {
     setActive(index);
@@ -89,11 +90,18 @@ export function AnimatedFlowDiagram({ protocol }: { protocol: Protocol }) {
             {protocol.actors.find((actor) => actor.id === step.to)?.name}
           </p>
           <h2>{step.label}</h2>
+          <small>このステップで行うこと</small>
           <p>{step.detail}</p>
         </div>
         <div className="messageSample">
-          <small>SECURITY</small>
+          <small>なぜ必要？</small>
           <p>{step.security}</p>
+          <small>このあと</small>
+          <p>
+            {nextStep
+              ? `次は「${nextStep.label}」へ進みます。`
+              : "これでフローは完了です。最初から再生して全体を振り返れます。"}
+          </p>
         </div>
         <div className="apiExchange">
           <div className="apiExchangeHeader">
@@ -120,6 +128,14 @@ export function AnimatedFlowDiagram({ protocol }: { protocol: Protocol }) {
               </pre>
             </article>
           </div>
+          {examples.handoff && (
+            <div className="handoffNote">
+              <span aria-hidden="true">↳</span>
+              <p>
+                <strong>値の引き継ぎ:</strong> {examples.handoff}
+              </p>
+            </div>
+          )}
           <p>※ トークン、challenge、Credential IDなどは説明用に短縮したサンプル値です。</p>
         </div>
       </div>

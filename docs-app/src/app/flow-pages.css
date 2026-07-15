@@ -111,6 +111,141 @@
 .flowMain {
   width: min(1200px, calc(100% - 40px));
 }
+.beginnerGuide {
+  padding: 30px 0 100px;
+}
+.beginnerHeading {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 70px;
+  align-items: end;
+  margin-bottom: 32px;
+}
+.beginnerHeading h2 {
+  font-size: clamp(2.5rem, 5vw, 4.7rem);
+}
+.beginnerGoal {
+  padding: 24px;
+  border: 1px solid color-mix(in srgb, var(--flow-accent) 24%, var(--line));
+  border-radius: 17px;
+  background: color-mix(in srgb, var(--flow-accent) 4%, transparent);
+}
+.beginnerGoal small,
+.storyGrid small,
+.actorGuide small {
+  color: var(--flow-accent);
+  font-family: ui-monospace, monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.beginnerGoal p {
+  margin: 12px 0 0;
+  font-size: 1rem;
+  line-height: 1.75;
+}
+.storyGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  overflow: hidden;
+}
+.storyGrid article {
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  gap: 12px;
+  min-height: 220px;
+  padding: 25px;
+  border-right: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.016);
+}
+.storyGrid article:last-child {
+  border-right: 0;
+}
+.storyGrid article > span {
+  color: #535b65;
+  font-family: ui-monospace, monospace;
+  font-size: 0.58rem;
+}
+.storyGrid article small {
+  align-self: start;
+}
+.storyGrid article p {
+  grid-column: 2;
+  margin: 5px 0 0;
+  color: #a2a9b3;
+  font-size: 0.84rem;
+  line-height: 1.85;
+}
+.actorGuide {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  overflow: hidden;
+}
+.actorGuide > div,
+.actorGuide article {
+  min-height: 180px;
+  padding: 20px;
+  border-right: 1px solid var(--line);
+}
+.actorGuide > *:last-child {
+  border-right: 0;
+}
+.actorGuide > div p {
+  color: #747c87;
+  font-size: 0.72rem;
+  line-height: 1.65;
+}
+.actorGuide article {
+  display: flex;
+  gap: 12px;
+}
+.actorGuide article > span {
+  display: grid;
+  width: 31px;
+  height: 31px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--flow-accent) 25%, var(--line));
+  border-radius: 9px;
+  color: var(--flow-accent);
+  font-size: 0.68rem;
+}
+.actorGuide strong {
+  font-size: 0.78rem;
+}
+.actorGuide article p {
+  margin: 8px 0 0;
+  color: #858d98;
+  font-size: 0.67rem;
+  line-height: 1.65;
+}
+.howToRead {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin-top: 12px;
+  padding: 15px 19px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  color: #858d98;
+  background: rgba(255, 255, 255, 0.018);
+}
+.howToRead > span {
+  color: var(--flow-accent);
+}
+.howToRead p {
+  margin: 0;
+  font-size: 0.73rem;
+  line-height: 1.6;
+}
+.howToRead strong {
+  color: #cbd1d8;
+}
 .animatedFlow {
   border: 1px solid var(--line-strong);
   border-radius: 24px;
@@ -368,6 +503,17 @@
   font-size: 0.53rem;
   letter-spacing: 0.13em;
 }
+.messageSample small:not(:first-child) {
+  margin-top: 13px;
+}
+.explanationCopy > small {
+  display: block;
+  margin: 0 0 7px;
+  color: #606873;
+  font-family: ui-monospace, monospace;
+  font-size: 0.54rem;
+  letter-spacing: 0.1em;
+}
 .messageSample code {
   margin-bottom: 11px;
   color: #cbd1d8;
@@ -459,6 +605,28 @@
   margin: 10px 2px 0;
   color: #555d67;
   font-size: 0.6rem;
+}
+.handoffNote {
+  display: flex;
+  gap: 12px;
+  align-items: start;
+  margin-top: 10px;
+  padding: 13px 15px;
+  border: 1px solid color-mix(in srgb, var(--flow-accent) 22%, var(--line));
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--flow-accent) 4%, transparent);
+}
+.handoffNote > span {
+  color: var(--flow-accent);
+}
+.handoffNote p {
+  margin: 0;
+  color: #9098a3;
+  font-size: 0.7rem;
+  line-height: 1.7;
+}
+.handoffNote strong {
+  color: #cbd1d8;
 }
 .flowProgress {
   display: flex;
@@ -562,6 +730,32 @@
     gap: 35px;
     padding: 80px 5px 55px;
   }
+  .beginnerHeading {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+  .storyGrid {
+    grid-template-columns: 1fr;
+  }
+  .storyGrid article {
+    min-height: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .storyGrid article:last-child {
+    border-bottom: 0;
+  }
+  .actorGuide {
+    grid-template-columns: 1fr 1fr;
+  }
+  .actorGuide > div,
+  .actorGuide article {
+    min-height: 150px;
+    border-bottom: 1px solid var(--line);
+  }
+  .actorGuide > *:nth-child(even) {
+    border-right: 0;
+  }
   .activeExplanation {
     grid-template-columns: 48px 1fr;
     padding: 26px 20px;
@@ -604,6 +798,20 @@
   }
   .protocolHero h1 {
     font-size: 3.15rem;
+  }
+  .beginnerGuide {
+    padding-bottom: 70px;
+  }
+  .actorGuide {
+    grid-template-columns: 1fr;
+  }
+  .actorGuide > div,
+  .actorGuide article {
+    min-height: auto;
+    border-right: 0;
+  }
+  .actorGuide > *:last-child {
+    border-bottom: 0;
   }
   .activeExplanation {
     grid-template-columns: 1fr;
