@@ -8,6 +8,8 @@ const errorMessages: Record<string, string> = {
   invalid_transaction:
     "ログイン処理の有効期限が切れたか、別のログイン操作によって更新されました。ログインを最初からやり直してください。",
   oauth_error: "認可処理を完了できませんでした。ログインを最初からやり直してください。",
+  invalid_id_token:
+    "IDトークンを検証できませんでした。認可サーバーとClient Appの設定を確認してください。",
 };
 
 export default async function Home({ searchParams }: HomeProps) {

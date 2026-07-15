@@ -23,7 +23,21 @@ export default async function Dashboard() {
     fetch(`${oauthConfig.resourceServerUrl}/api/user`, requestOptions),
     fetch(`${oauthConfig.resourceServerUrl}/api/resources`, requestOptions),
   ]);
-  if (!userResponse.ok || !resourcesResponse.ok) redirect("/api/auth/logout");
+  if (!userResponse.ok || !resourcesResponse.ok) {
+    const accessTokenClaims = decodeJwtPayload(session.accessToken);
+    const grantedScopes = accessTokenClaims.scope ?? accessTokenClaims.scp ?? [];
+    console.debug("[auth-debug] protected API request failed; ending local session", {
+      grantedScopes,
+      profileScopeGranted:
+        (typeof grantedScopes === "string" && grantedScopes.split(" ").includes("profile")) ||
+        (Array.isArray(grantedScopes) && grantedScopes.includes("profile")),
+      responses: [
+        { endpoint: "/api/user", status: userResponse.status },
+        { endpoint: "/api/resources", status: resourcesResponse.status },
+      ],
+    });
+    redirect("/api/auth/logout");
+  }
 
   const idClaims = decodeJwtPayload(session.idToken);
   const apiUser = (await userResponse.json()) as Record<string, unknown>;

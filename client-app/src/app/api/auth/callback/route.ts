@@ -2,18 +2,15 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { secureCookie } from "../../../../lib/cookie-options";
 import { oauthConfig } from "../../../../lib/config";
-import { decodeJwtPayload, type LoginTransaction, type TokenSession } from "../../../../lib/oauth";
-import {
-  createTokenRequest,
-  hasExpectedNonce,
-  isValidTransaction,
-} from "../../../../lib/oauth-flow";
+import { type LoginTransaction, type TokenSession } from "../../../../lib/oauth";
+import { createTokenRequest, isValidTransaction } from "../../../../lib/oauth-flow";
 import { seal, unseal } from "../../../../lib/sealed-cookie";
 import { recordAuthEventSafely } from "../../../../lib/auth-audit";
+import { verifyIdToken } from "../../../../lib/id-token";
 
 export const runtime = "nodejs";
 
-type TokenResponse = { access_token: string; id_token: string; expires_in: number };
+type TokenResponse = { access_token?: string; id_token?: string; expires_in?: number };
 
 function redirectWithAuthError(errorCode: string) {
   const response = NextResponse.redirect(
@@ -65,10 +62,26 @@ export async function GET(request: NextRequest) {
   }
 
   const tokens = (await tokenResponse.json()) as TokenResponse;
-  const idClaims = decodeJwtPayload(tokens.id_token);
-  if (!hasExpectedNonce(idClaims, transaction)) {
-    await recordAuthEventSafely("LOGIN_FAILED", null, { reason: "invalid_nonce" });
-    return NextResponse.json({ error: "Invalid ID token nonce" }, { status: 400 });
+  if (!tokens.access_token || !tokens.id_token || typeof tokens.expires_in !== "number") {
+    console.debug("[auth-debug] token response is missing required OIDC fields", {
+      hasAccessToken: Boolean(tokens.access_token),
+      hasIdToken: Boolean(tokens.id_token),
+      hasExpiresIn: typeof tokens.expires_in === "number",
+    });
+    await recordAuthEventSafely("LOGIN_FAILED", null, { reason: "invalid_token_response" });
+    return redirectWithAuthError("invalid_id_token");
+  }
+
+  let idClaims: Awaited<ReturnType<typeof verifyIdToken>>;
+  try {
+    idClaims = await verifyIdToken(tokens.id_token, transaction.nonce);
+  } catch (error) {
+    console.debug("[auth-debug] ID token validation failed", {
+      errorName: error instanceof Error ? error.name : "UnknownError",
+      errorMessage: error instanceof Error ? error.message : "Unknown validation error",
+    });
+    await recordAuthEventSafely("LOGIN_FAILED", null, { reason: "invalid_id_token" });
+    return redirectWithAuthError("invalid_id_token");
   }
 
   const session: TokenSession = {
