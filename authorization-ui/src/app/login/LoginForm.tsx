@@ -61,7 +61,7 @@ export function LoginForm() {
               ログインして続行
             </Button>
             <Typography variant="caption" color="text.secondary">
-              デモユーザー: user / password
+              デモユーザー: user / Gekal-Auth-Demo!2026-7fQ9
             </Typography>
           </Stack>
         )

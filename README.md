@@ -85,7 +85,7 @@ npm run dev
 - `https://client-app.local.gekal.cn`
 
 - ユーザー名: `user`
-- パスワード: `password`
+- パスワード: `Gekal-Auth-Demo!2026-7fQ9`
 
 認可画面で`openid`と`profile`を許可すると、ダッシュボードにDBプロフィールを含むIDトークンのClaims、保護APIの応答、Resource ServerのDBから取得した所有データ、Client Appが記録した直近の認証監査イベントが表示されます。
 

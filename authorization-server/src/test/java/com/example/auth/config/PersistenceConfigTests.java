@@ -37,7 +37,7 @@ class PersistenceConfigTests {
     var user = users.loadUserByUsername("user");
 
     assertThat(user.isEnabled()).isTrue();
-    assertThat(passwordEncoder.matches("password", user.getPassword())).isTrue();
+    assertThat(passwordEncoder.matches("Gekal-Auth-Demo!2026-7fQ9", user.getPassword())).isTrue();
     assertThat(clients.findByClientId("nextjs-client")).isNotNull();
     assertThat(authorizations.getClass().getSimpleName())
         .isEqualTo("JdbcOAuth2AuthorizationService");

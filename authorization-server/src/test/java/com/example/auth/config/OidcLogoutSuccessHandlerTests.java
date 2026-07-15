@@ -62,7 +62,8 @@ class OidcLogoutSuccessHandlerTests {
             })
         .when(service)
         .save(any());
-    var principal = UsernamePasswordAuthenticationToken.authenticated("user", "password", Set.of());
+    var principal =
+        UsernamePasswordAuthenticationToken.authenticated("user", "credentials", Set.of());
     var logout =
         new OidcLogoutAuthenticationToken(
             idToken, principal, "session-id", "nextjs-client", "https://client.example/", null);
@@ -83,7 +84,8 @@ class OidcLogoutSuccessHandlerTests {
     OidcIdToken idToken =
         new OidcIdToken(
             "id-token", now, now.plusSeconds(300), Map.of("sub", "user", "aud", "nextjs-client"));
-    var principal = UsernamePasswordAuthenticationToken.authenticated("user", "password", Set.of());
+    var principal =
+        UsernamePasswordAuthenticationToken.authenticated("user", "credentials", Set.of());
     var logout =
         new OidcLogoutAuthenticationToken(
             idToken, principal, "session-id", "nextjs-client", "https://client.example/", null);

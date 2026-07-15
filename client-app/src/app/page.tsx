@@ -40,7 +40,7 @@ export default async function Home({ searchParams }: HomeProps) {
             {errorMessage ? "ログインを再試行" : "ログインを開始"}
           </Button>
           <Typography variant="body2" color="text.secondary" sx={{ pt: 1 }}>
-            検証用ユーザー: user / password
+            検証用ユーザー: user / Gekal-Auth-Demo!2026-7fQ9
           </Typography>
         </Stack>
       </Paper>

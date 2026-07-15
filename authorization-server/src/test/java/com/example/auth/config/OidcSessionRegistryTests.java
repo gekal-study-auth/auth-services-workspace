@@ -27,7 +27,7 @@ class OidcSessionRegistryTests {
                 post("/ui-api/login")
                     .with(csrf())
                     .param("username", "user")
-                    .param("password", "password"))
+                    .param("password", "Gekal-Auth-Demo!2026-7fQ9"))
             .andExpect(status().is3xxRedirection())
             .andReturn();
 
