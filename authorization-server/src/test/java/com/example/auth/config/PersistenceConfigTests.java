@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -29,6 +30,7 @@ class PersistenceConfigTests {
   @Autowired OAuth2AuthorizationService authorizations;
   @Autowired OAuth2AuthorizationConsentService consents;
   @Autowired UserProfileMapper profiles;
+  @Autowired SessionRegistry sessionRegistry;
 
   @Test
   void loadsSeedUserAndJdbcOAuthServices() {
@@ -41,6 +43,7 @@ class PersistenceConfigTests {
         .isEqualTo("JdbcOAuth2AuthorizationService");
     assertThat(consents.getClass().getSimpleName())
         .isEqualTo("JdbcOAuth2AuthorizationConsentService");
+    assertThat(sessionRegistry).isNotNull();
     assertThat(profiles.findByUsername("user"))
         .get()
         .satisfies(

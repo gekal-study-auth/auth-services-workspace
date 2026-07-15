@@ -12,6 +12,7 @@ export const oauthConfig = {
     process.env.AUTHORIZATION_SERVER_URL ?? "http://localhost:9000",
   ),
   resourceServerUrl: required("RESOURCE_SERVER_URL", "http://localhost:8080"),
+  postLogoutRedirectUri: new URL("/", required("APP_BASE_URL", "http://localhost:3000")).toString(),
   clientId: required("OAUTH_CLIENT_ID", "nextjs-client"),
   redirectUri: required("OAUTH_REDIRECT_URI", "http://localhost:3000/api/auth/callback"),
 };

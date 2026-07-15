@@ -172,10 +172,12 @@ npm run build
 | Authorization Server | `/oauth2/authorize` | 認可 |
 | Authorization Server | `/oauth2/token` | トークン発行 |
 | Authorization Server | `/oauth2/jwks` | 公開鍵（JWKS） |
+| Authorization Server | `/connect/logout` | OIDC Provider Sessionの終了 |
 | Resource Server | `/api/user` | `profile`スコープ必須のAPI |
 | Resource Server | `/api/resources` | `sub`が所有するDBデータを返す保護API |
 | Client Application | `/api/auth/login` | PKCE認可フロー開始 |
 | Client Application | `/api/auth/callback` | state/nonce検査・コード交換 |
+| Client Application | `/api/auth/logout` | Client Session削除後にOIDC logoutへ遷移 |
 | Client Application | `/dashboard` | BFF経由で保護APIを表示 |
 
 ## 検証

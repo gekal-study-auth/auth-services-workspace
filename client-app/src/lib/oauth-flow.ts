@@ -60,3 +60,14 @@ export function createTokenRequest(
 export function hasExpectedNonce(idClaims: Record<string, unknown>, transaction: LoginTransaction) {
   return typeof idClaims.nonce === "string" && idClaims.nonce === transaction.nonce;
 }
+
+export function createEndSessionUrl(
+  authorizationServerUrl: string,
+  idToken: string,
+  postLogoutRedirectUri: string,
+) {
+  const url = new URL("/connect/logout", authorizationServerUrl);
+  url.searchParams.set("id_token_hint", idToken);
+  url.searchParams.set("post_logout_redirect_uri", postLogoutRedirectUri);
+  return url;
+}

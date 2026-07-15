@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import {
   TRANSACTION_MAX_AGE_MS,
   createAuthorizationParams,
+  createEndSessionUrl,
   createLoginTransaction,
   createTokenRequest,
   hasExpectedNonce,
@@ -73,6 +74,19 @@ describe("OAuth 2.1 Authorization Code + PKCE", () => {
     assert.equal(hasExpectedNonce({ nonce: transaction.nonce }, transaction), true);
     assert.equal(hasExpectedNonce({ nonce: "replayed-nonce" }, transaction), false);
     assert.equal(hasExpectedNonce({}, transaction), false);
+  });
+
+  it("builds an RP-Initiated Logout request for the authorization server", () => {
+    const url = createEndSessionUrl(
+      "https://authorization.example",
+      "header.payload.signature",
+      "https://client.example/",
+    );
+
+    assert.equal(url.origin, "https://authorization.example");
+    assert.equal(url.pathname, "/connect/logout");
+    assert.equal(url.searchParams.get("id_token_hint"), "header.payload.signature");
+    assert.equal(url.searchParams.get("post_logout_redirect_uri"), "https://client.example/");
   });
 });
 
