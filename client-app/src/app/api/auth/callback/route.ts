@@ -7,6 +7,7 @@ import { createTokenRequest, isValidTransaction } from "../../../../lib/oauth-fl
 import { seal, unseal } from "../../../../lib/sealed-cookie";
 import { recordAuthEventSafely } from "../../../../lib/auth-audit";
 import { verifyIdToken } from "../../../../lib/id-token";
+import { authInfo, authWarn } from "../../../../lib/auth-log";
 
 export const runtime = "nodejs";
 
@@ -63,7 +64,7 @@ export async function GET(request: NextRequest) {
 
   const tokens = (await tokenResponse.json()) as TokenResponse;
   if (!tokens.access_token || !tokens.id_token || typeof tokens.expires_in !== "number") {
-    console.debug("[auth-debug] token response is missing required OIDC fields", {
+    authWarn("oidc_token_response_invalid", {
       hasAccessToken: Boolean(tokens.access_token),
       hasIdToken: Boolean(tokens.id_token),
       hasExpiresIn: typeof tokens.expires_in === "number",
@@ -76,13 +77,18 @@ export async function GET(request: NextRequest) {
   try {
     idClaims = await verifyIdToken(tokens.id_token, transaction.nonce);
   } catch (error) {
-    console.debug("[auth-debug] ID token validation failed", {
+    authWarn("oidc_id_token_validation_failed", {
       errorName: error instanceof Error ? error.name : "UnknownError",
       errorMessage: error instanceof Error ? error.message : "Unknown validation error",
     });
     await recordAuthEventSafely("LOGIN_FAILED", null, { reason: "invalid_id_token" });
     return redirectWithAuthError("invalid_id_token");
   }
+  authInfo("oidc_id_token_validated", {
+    subject: idClaims.sub,
+    issuer: idClaims.iss,
+    audience: idClaims.aud,
+  });
 
   const session: TokenSession = {
     accessToken: tokens.access_token,

@@ -61,7 +61,8 @@ public class AuthorizationUiController {
                     new ScopeView(
                         name,
                         SCOPE_DESCRIPTIONS.getOrDefault(name, "この権限をClient Appへ許可します。"),
-                        previouslyApproved.contains(name)))
+                        previouslyApproved.contains(name),
+                        "openid".equals(name)))
             .toList();
     return ResponseEntity.ok(
         new ConsentContext(
@@ -81,7 +82,7 @@ public class AuthorizationUiController {
 
   record LoginContext(boolean authenticated, String username, CsrfView csrf) {}
 
-  record ScopeView(String name, String description, boolean previouslyApproved) {}
+  record ScopeView(String name, String description, boolean previouslyApproved, boolean required) {}
 
   record ConsentContext(
       String clientId,

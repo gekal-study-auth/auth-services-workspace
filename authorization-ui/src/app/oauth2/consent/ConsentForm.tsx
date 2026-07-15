@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   Checkbox,
+  Chip,
   CircularProgress,
   FormControlLabel,
   Paper,
@@ -20,7 +21,12 @@ type ConsentContext = {
   clientName: string;
   state: string;
   username: string;
-  scopes: Array<{ name: string; description: string; previouslyApproved: boolean }>;
+  scopes: Array<{
+    name: string;
+    description: string;
+    previouslyApproved: boolean;
+    required: boolean;
+  }>;
   csrf: { parameterName: string; token: string };
 };
 
@@ -66,11 +72,22 @@ export function ConsentForm() {
                   variant="outlined"
                   sx={{ px: 1.5, py: 1, borderColor: "divider" }}
                 >
+                  {scope.required && <input type="hidden" name="scope" value={scope.name} />}
                   <FormControlLabel
-                    control={<Checkbox name="scope" value={scope.name} defaultChecked />}
+                    control={
+                      <Checkbox
+                        name={scope.required ? undefined : "scope"}
+                        value={scope.name}
+                        defaultChecked
+                        disabled={scope.required}
+                      />
+                    }
                     label={
                       <Box>
-                        <Typography sx={{ fontWeight: 800 }}>{scope.name}</Typography>
+                        <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+                          <Typography sx={{ fontWeight: 800 }}>{scope.name}</Typography>
+                          {scope.required && <Chip label="必須" size="small" color="primary" />}
+                        </Stack>
                         <Typography variant="body2" color="text.secondary">
                           {scope.description}
                         </Typography>

@@ -40,6 +40,10 @@ class AuthorizationUiControllerTests {
         .andExpect(jsonPath("$.username").value("user"))
         .andExpect(jsonPath("$.state").value("state-value"))
         .andExpect(jsonPath("$.scopes.length()").value(2))
+        .andExpect(jsonPath("$.scopes[0].name").value("openid"))
+        .andExpect(jsonPath("$.scopes[0].required").value(true))
+        .andExpect(jsonPath("$.scopes[1].name").value("profile"))
+        .andExpect(jsonPath("$.scopes[1].required").value(false))
         .andExpect(jsonPath("$.csrf.token").isNotEmpty());
   }
 }

@@ -7,6 +7,7 @@ import { decodeJwtPayload, type TokenSession } from "../../lib/oauth";
 import { unseal } from "../../lib/sealed-cookie";
 import { listAuthEventsPage } from "../../lib/auth-audit";
 import { AuthAuditTable } from "./AuthAuditTable";
+import { authWarn } from "../../lib/auth-log";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
@@ -26,7 +27,7 @@ export default async function Dashboard() {
   if (!userResponse.ok || !resourcesResponse.ok) {
     const accessTokenClaims = decodeJwtPayload(session.accessToken);
     const grantedScopes = accessTokenClaims.scope ?? accessTokenClaims.scp ?? [];
-    console.debug("[auth-debug] protected API request failed; ending local session", {
+    authWarn("protected_api_request_failed", {
       grantedScopes,
       profileScopeGranted:
         (typeof grantedScopes === "string" && grantedScopes.split(" ").includes("profile")) ||
