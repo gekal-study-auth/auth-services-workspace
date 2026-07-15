@@ -79,17 +79,25 @@ export function ConsentForm() {
       description="許可する情報を確認してください。許可しない場合、Client Appへ情報やトークンは渡されません。"
     >
       {loadError === "authentication_required" && (
-        <Alert
-          severity="warning"
-          action={
-            <Button color="inherit" size="small" href={clientLoginUrl}>
+        <Stack spacing={2}>
+          <Alert severity="warning">
+            <Typography component="span" variant="body2">
+              認可サーバーのログインセッションが終了しました。Client
+              Appから認可フローをやり直してください。
+            </Typography>
+          </Alert>
+          <Box sx={{ display: "flex", justifyContent: "center" }}>
+            <Button
+              color="inherit"
+              size="small"
+              variant="outlined"
+              href={clientLoginUrl}
+              sx={{ minWidth: "max-content", whiteSpace: "nowrap" }}
+            >
               ログインをやり直す
             </Button>
-          }
-        >
-          認可サーバーのログインセッションが終了しました。Client
-          Appから認可フローをやり直してください。
-        </Alert>
+          </Box>
+        </Stack>
       )}
       {loadError === "context_unavailable" && (
         <Alert severity="error">
