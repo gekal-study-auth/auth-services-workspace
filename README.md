@@ -209,7 +209,7 @@ Gradle側は専用のNode.js/npmを自動取得するため、システムの`PA
 
 ## アプリケーションログ
 
-- Nginxは`/api/`、`/oauth2/`、`/.well-known/`へのアクセスだけをJSON形式で標準出力へ記録します。通常ページとHealth Checkはアクセスログへ出しません。
+- Nginxは`/api/`、`/oauth2/`、`/.well-known/`へのアクセスだけを通常のcombined形式で標準出力へ記録します。通常ページとHealth Checkはアクセスログへ出しません。
 - NginxのAPIアクセスログにはRequest ID、Host、Method、URI、Status、通信量、処理時間、upstream情報を含めます。
 - Spring Bootは`@RestController`のメソッド完了時にController名、メソッド名、引数、戻り値、処理時間を記録し、例外時は例外型とメッセージを記録します。
 - `X-Request-ID`をNginxからSpring Bootへ引き継ぎ、Controllerログとの対応を追跡できます。
