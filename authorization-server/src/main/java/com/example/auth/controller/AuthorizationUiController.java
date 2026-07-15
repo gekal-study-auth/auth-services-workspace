@@ -22,15 +22,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/ui-api")
 public class AuthorizationUiController {
-  private static final List<String> SCOPE_ORDER = List.of("openid", "profile", "demo.read");
+  private static final List<String> SCOPE_ORDER =
+      List.of("openid", "profile", "email", "address", "phone");
   private static final Map<String, String> SCOPE_DESCRIPTIONS =
       Map.of(
           OidcScopes.OPENID,
           "あなたを識別するためのIDトークンを発行します。",
           OidcScopes.PROFILE,
           "表示名、ユーザー名、プロフィール画像をClient Appへ共有します。",
-          "demo.read",
-          "任意Scopeの動作確認用です。未選択でもデモアプリを実行できます。");
+          OidcScopes.EMAIL,
+          "メールアドレスと確認状態を共有します。",
+          OidcScopes.ADDRESS,
+          "住所情報を共有します。",
+          OidcScopes.PHONE,
+          "電話番号と確認状態を共有します。");
 
   private final RegisteredClientRepository clients;
   private final OAuth2AuthorizationConsentService consents;

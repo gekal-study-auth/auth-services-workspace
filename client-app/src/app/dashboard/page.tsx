@@ -71,6 +71,25 @@ export default async function Dashboard() {
           <JsonPanel title="保護APIの応答" value={apiUser} />
           <JsonPanel title="DBに保存された保護リソース" value={resources} />
         </Box>
+        <Paper variant="outlined" sx={{ mt: 2.5, p: 2.5 }}>
+          <Typography component="h2" variant="h2" sx={{ mb: 1 }}>
+            Incremental Authorization（追加認可）
+          </Typography>
+          <Typography color="text.secondary" sx={{ mb: 2 }}>
+            必要になった情報だけを後から追加で許可できます。
+          </Typography>
+          <Stack direction="row" spacing={1.5} sx={{ flexWrap: "wrap", gap: 1.5 }}>
+            <Button variant="outlined" href="/api/auth/login?scope=email">
+              emailを追加
+            </Button>
+            <Button variant="outlined" href="/api/auth/login?scope=address">
+              addressを追加
+            </Button>
+            <Button variant="outlined" href="/api/auth/login?scope=phone">
+              phoneを追加
+            </Button>
+          </Stack>
+        </Paper>
         <Stack direction="row" spacing={1.5} sx={{ mt: 2.5, flexWrap: "wrap", gap: 1.5 }}>
           <Button variant="outlined" color="secondary" href="/api/auth/logout">
             セッションのみ終了

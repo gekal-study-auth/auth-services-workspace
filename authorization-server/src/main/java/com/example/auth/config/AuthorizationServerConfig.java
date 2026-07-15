@@ -125,6 +125,24 @@ public class AuthorizationServerConfig {
                       .claim("locale", profile.locale())
                       .claim("picture", profile.pictureUrl())
                       .claim("updated_at", profile.updatedAt().getEpochSecond()));
+      if (context.getAuthorizedScopes().contains("email")) {
+        context.getClaims().claim("email", "user@example.com").claim("email_verified", true);
+      }
+      if (context.getAuthorizedScopes().contains("address")) {
+        context
+            .getClaims()
+            .claim(
+                "address",
+                java.util.Map.of(
+                    "formatted", "東京都千代田区1-1",
+                    "country", "JP"));
+      }
+      if (context.getAuthorizedScopes().contains("phone")) {
+        context
+            .getClaims()
+            .claim("phone_number", "+81-90-1234-5678")
+            .claim("phone_number_verified", true);
+      }
     };
   }
 }

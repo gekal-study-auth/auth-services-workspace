@@ -15,12 +15,13 @@ export function createAuthorizationParams(
   transaction: LoginTransaction,
   clientId: string,
   redirectUri: string,
+  scopes: string[] = ["openid", "profile"],
 ) {
   return new URLSearchParams({
     response_type: "code",
     client_id: clientId,
     redirect_uri: redirectUri,
-    scope: "openid profile demo.read",
+    scope: scopes.join(" "),
     state: transaction.state,
     nonce: transaction.nonce,
     code_challenge: codeChallenge(transaction.codeVerifier),
