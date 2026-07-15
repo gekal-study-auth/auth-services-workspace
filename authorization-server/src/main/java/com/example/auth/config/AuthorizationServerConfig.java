@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
@@ -109,7 +110,8 @@ public class AuthorizationServerConfig {
   @Bean
   OAuth2TokenCustomizer<JwtEncodingContext> profileClaimsCustomizer(UserProfileMapper profiles) {
     return context -> {
-      if (!context.getAuthorizedScopes().contains("profile")) {
+      if (!OidcParameterNames.ID_TOKEN.equals(context.getTokenType().getValue())
+          || !context.getAuthorizedScopes().contains("profile")) {
         return;
       }
       profiles
