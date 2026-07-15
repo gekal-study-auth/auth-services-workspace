@@ -9,7 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.example.api.config.ResourceServerConfig;
 import com.example.api.model.DemoResource;
-import com.example.api.model.DemoResourceRepository;
+import com.example.api.model.DemoResourceMapper;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 class UserControllerTests {
   @Autowired MockMvc mockMvc;
   @MockitoBean JwtDecoder jwtDecoder;
-  @MockitoBean DemoResourceRepository resources;
+  @MockitoBean DemoResourceMapper resources;
 
   @Test
   void rejectsMissingToken() throws Exception {

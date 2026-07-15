@@ -3,16 +3,14 @@ package com.example.api.model;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
+import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
-import org.springframework.context.annotation.Import;
 
-@JdbcTest
+@MybatisTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import(DemoResourceRepository.class)
-class DemoResourceRepositoryTests {
-  @Autowired DemoResourceRepository resources;
+class DemoResourceMapperTests {
+  @Autowired DemoResourceMapper resources;
 
   @Test
   void loadsOnlyResourcesForRequestedSubject() {

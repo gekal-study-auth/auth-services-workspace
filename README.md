@@ -20,7 +20,7 @@ auth-services-workspace/
 4. トークンは暗号化されたHttpOnly / SameSite Cookieに格納され、ブラウザーのJavaScriptには公開されません。
 5. BFFがアクセストークンを付けて保護APIを呼び、リソースサーバーがJWT署名・issuer・有効期限・`profile`スコープを検証します。
 
-PostgreSQL内はサービス単位のSchemaに分離されています。認可サーバーはユーザー、プロフィール、クライアント、同意情報、認可コード、アクセストークン、IDトークンを`authorization_server`へ保存します。リソースサーバーは保護APIのデモデータを`resource_server`へ保存し、JWTの`sub`と一致する所有者のデータだけを返します。RSA署名鍵は学習用として起動時生成のままなので、認可サーバーの再起動後はDBに残っている発行済みJWTも署名検証に失敗します。
+PostgreSQL内はサービス単位のSchemaに分離されています。認可サーバーはユーザー、プロフィール、クライアント、同意情報、認可コード、アクセストークン、IDトークンを`authorization_server`へ保存します。リソースサーバーは保護APIのデモデータを`resource_server`へ保存し、JWTの`sub`と一致する所有者のデータだけを返します。Client Appは認証監査イベントを`client_app`へ保存します。Javaサービス独自のDBアクセスにはMyBatisを使用し、Spring Authorization Server標準のOAuth永続化にはフレームワーク提供のJDBCサービスを使用します。RSA署名鍵は学習用として起動時生成のままなので、認可サーバーの再起動後はDBに残っている発行済みJWTも署名検証に失敗します。
 
 ## 必要環境
 
@@ -83,7 +83,7 @@ npm run dev
 - ユーザー名: `user`
 - パスワード: `password`
 
-認可画面で`openid`と`profile`を許可すると、ダッシュボードにDBプロフィールを含むIDトークンのClaims、保護APIの応答、Resource ServerのDBから取得した所有データが表示されます。
+認可画面で`openid`と`profile`を許可すると、ダッシュボードにDBプロフィールを含むIDトークンのClaims、保護APIの応答、Resource ServerのDBから取得した所有データ、Client Appが記録した直近の認証監査イベントが表示されます。
 
 ### PostgreSQL
 
@@ -96,8 +96,9 @@ npm run dev
 | Password | `auth_password` |
 | Authorization Server JDBC URL | `jdbc:postgresql://localhost:5432/auth_services?currentSchema=authorization_server` |
 | Resource Server JDBC URL | `jdbc:postgresql://localhost:5432/auth_services?currentSchema=resource_server` |
+| Client App URL | `postgresql://auth_user:auth_password@localhost:5432/auth_services` |
 
-認可サーバーでは`AUTH_DB_URL`、`AUTH_DB_USERNAME`、`AUTH_DB_PASSWORD`、リソースサーバーでは`RESOURCE_DB_URL`、`RESOURCE_DB_USERNAME`、`RESOURCE_DB_PASSWORD`で接続を上書きできます。各サービスのFlywayが専用Schemaを作成し、テーブルとデモデータを投入します。
+認可サーバーでは`AUTH_DB_URL`、`AUTH_DB_USERNAME`、`AUTH_DB_PASSWORD`、リソースサーバーでは`RESOURCE_DB_URL`、`RESOURCE_DB_USERNAME`、`RESOURCE_DB_PASSWORD`で接続を上書きできます。各JavaサービスのFlywayが専用Schemaを作成し、テーブルとデモデータを投入します。Client Appは`CLIENT_DB_URL`で接続を上書きでき、最初の認証イベント記録時に専用Schemaと監査テーブルを初期化します。
 
 保存内容は次のコマンドで確認できます。
 
@@ -111,6 +112,13 @@ docker compose exec postgres psql -U auth_user -d auth_services \
 ```bash
 docker compose exec postgres psql -U auth_user -d auth_services \
   -c "select id, owner_subject, title, status from resource_server.demo_resource;"
+```
+
+Client Appの認証監査イベントは次のように確認できます。認可フローを一度開始するとSchemaとテーブルが作成されます。
+
+```bash
+docker compose exec postgres psql -U auth_user -d auth_services \
+  -c "select event_type, subject, occurred_at from client_app.auth_event order by occurred_at desc;"
 ```
 
 DBを停止する場合は`docker compose down`を使用します。データボリュームも削除して初期化する場合のみ`docker compose down -v`を使用してください。

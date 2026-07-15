@@ -1,7 +1,7 @@
 package com.example.api.controller;
 
 import com.example.api.model.DemoResource;
-import com.example.api.model.DemoResourceRepository;
+import com.example.api.model.DemoResourceMapper;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 public class UserController {
-  private final DemoResourceRepository resources;
+  private final DemoResourceMapper resources;
 
-  public UserController(DemoResourceRepository resources) {
+  public UserController(DemoResourceMapper resources) {
     this.resources = resources;
   }
 

@@ -1,6 +1,6 @@
 package com.example.auth.config;
 
-import com.example.auth.model.UserProfileRepository;
+import com.example.auth.model.UserProfileMapper;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
@@ -79,8 +79,7 @@ public class AuthorizationServerConfig {
   }
 
   @Bean
-  OAuth2TokenCustomizer<JwtEncodingContext> profileClaimsCustomizer(
-      UserProfileRepository profiles) {
+  OAuth2TokenCustomizer<JwtEncodingContext> profileClaimsCustomizer(UserProfileMapper profiles) {
     return context -> {
       if (!context.getAuthorizedScopes().contains("profile")) {
         return;

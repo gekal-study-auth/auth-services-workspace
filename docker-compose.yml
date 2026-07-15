@@ -88,6 +88,7 @@ services:
     image: auth-services/client-app:local
     container_name: auth-services-client-app
     environment:
+      CLIENT_DB_URL: postgresql://auth_user:auth_password@postgres:5432/auth_services
       APP_BASE_URL: https://client-app.local.gekal.cn
       AUTHORIZATION_SERVER_URL: https://authorization-server.local.gekal.cn
       AUTHORIZATION_SERVER_INTERNAL_URL: http://authorization-server:9000
@@ -98,6 +99,8 @@ services:
     ports:
       - "${CLIENT_APP_PORT:-3000}:3000"
     depends_on:
+      postgres:
+        condition: service_healthy
       authorization-server:
         condition: service_healthy
       resource-server:

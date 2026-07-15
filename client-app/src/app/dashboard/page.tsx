@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { oauthConfig } from "../../lib/config";
 import { decodeJwtPayload, type TokenSession } from "../../lib/oauth";
 import { unseal } from "../../lib/sealed-cookie";
+import { listRecentAuthEvents } from "../../lib/auth-audit";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
@@ -25,6 +26,8 @@ export default async function Dashboard() {
   const idClaims = decodeJwtPayload(session.idToken);
   const apiUser = (await userResponse.json()) as Record<string, unknown>;
   const resources = (await resourcesResponse.json()) as Record<string, unknown>[];
+  const subject = typeof idClaims.sub === "string" ? idClaims.sub : "";
+  const authEvents = subject ? await listRecentAuthEvents(subject) : [];
 
   return (
     <main className="shell">
@@ -43,6 +46,10 @@ export default async function Dashboard() {
           <div>
             <h2>DBに保存された保護リソース</h2>
             <pre>{JSON.stringify(resources, null, 2)}</pre>
+          </div>
+          <div>
+            <h2>Client Appの認証監査ログ</h2>
+            <pre>{JSON.stringify(authEvents, null, 2)}</pre>
           </div>
         </div>
         <a className="secondary" href="/api/auth/logout">

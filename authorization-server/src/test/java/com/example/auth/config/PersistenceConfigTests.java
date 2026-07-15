@@ -2,7 +2,7 @@ package com.example.auth.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.example.auth.model.UserProfileRepository;
+import com.example.auth.model.UserProfileMapper;
 import java.time.Instant;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ class PersistenceConfigTests {
   @Autowired RegisteredClientRepository clients;
   @Autowired OAuth2AuthorizationService authorizations;
   @Autowired OAuth2AuthorizationConsentService consents;
-  @Autowired UserProfileRepository profiles;
+  @Autowired UserProfileMapper profiles;
 
   @Test
   void loadsSeedUserAndJdbcOAuthServices() {
