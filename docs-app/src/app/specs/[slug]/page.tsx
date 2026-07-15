@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { protocols } from "../../../lib/protocols";
 import { getSpecification, specifications } from "../../../lib/specs";
+import { getSpecificationGuide } from "../../../lib/specification-guides";
 
 export function generateStaticParams() {
   return specifications.map(({ slug }) => ({ slug }));
@@ -10,6 +11,7 @@ export default async function SpecificationPage({ params }: { params: Promise<{ 
   const { slug } = await params;
   const spec = getSpecification(slug);
   if (!spec) notFound();
+  const guide = getSpecificationGuide(slug);
   return (
     <div className={`specPage ${spec.accent}`}>
       <header className="specHero">
@@ -43,6 +45,41 @@ export default async function SpecificationPage({ params }: { params: Promise<{ 
         </div>
       </header>
       <main className="specMain">
+        {guide && (
+          <>
+            <section className="specIntroduction">
+              <div>
+                <p className="sectionLabel">Overview</p>
+                <h2>
+                  この仕様は、
+                  <br />
+                  何を解決するのか。
+                </h2>
+                <span>{guide.audience}</span>
+              </div>
+              <div>
+                {guide.introduction.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </div>
+            </section>
+            <section className="specPurpose">
+              <div className="specSectionHeading">
+                <p className="sectionLabel">Purpose and responsibilities</p>
+                <h2>仕様が定める、大切なこと。</h2>
+              </div>
+              <div className="purposeGrid">
+                {guide.purpose.map((item, index) => (
+                  <article key={item.title}>
+                    <span>{String(index + 1).padStart(2, "0")}</span>
+                    <h3>{item.title}</h3>
+                    <p>{item.text}</p>
+                  </article>
+                ))}
+              </div>
+            </section>
+          </>
+        )}
         <section className="keyPointSection">
           <p className="sectionLabel">Key concepts</p>
           <div>
@@ -54,6 +91,25 @@ export default async function SpecificationPage({ params }: { params: Promise<{ 
             ))}
           </div>
         </section>
+        {guide && (
+          <section className="specSecurity">
+            <div>
+              <p className="sectionLabel">Security considerations</p>
+              <h2>安全に使うための確認事項。</h2>
+              <p>
+                仕様を実装するときは、正常系の通信だけでなく、値のすり替え、再利用、漏えいが起きた場合も考えます。
+              </p>
+            </div>
+            <ol>
+              {guide.security.map((item, index) => (
+                <li key={item}>
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <p>{item}</p>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
         <section className="specFlowSection">
           <div>
             <p className="sectionLabel">Interactive flows</p>
@@ -76,6 +132,15 @@ export default async function SpecificationPage({ params }: { params: Promise<{ 
             })}
           </div>
         </section>
+        {guide && (
+          <section className="specRelationship">
+            <p className="sectionLabel">Position and relationship</p>
+            <div>
+              <h2>ほかの仕様との関係</h2>
+              <p>{guide.relationship}</p>
+            </div>
+          </section>
+        )}
         <section className="allSpecs">
           <p className="sectionLabel">Other specifications</p>
           <div>

@@ -33,6 +33,7 @@ export const specifications: Specification[] = [
       "Implicit（Legacy）",
       "Password（Legacy）",
     ],
+    sourceUrl: "https://www.rfc-editor.org/rfc/rfc6749.html",
   },
   {
     slug: "rfc-8628",
@@ -44,6 +45,7 @@ export const specifications: Specification[] = [
     accent: "violet",
     flowSlugs: ["oauth-2-0-device-authorization"],
     keyPoints: ["Device Code", "User Code", "Verification URI", "Token Polling"],
+    sourceUrl: "https://www.rfc-editor.org/rfc/rfc8628.html",
   },
   {
     slug: "oauth-2-1",
@@ -66,6 +68,7 @@ export const specifications: Specification[] = [
       "No Password Grant",
       "Refresh Rotation",
     ],
+    sourceUrl: "https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/",
   },
   {
     slug: "oidc-core",
@@ -77,6 +80,7 @@ export const specifications: Specification[] = [
     accent: "cyan",
     flowSlugs: ["openid-connect", "oidc-hybrid", "oidc-implicit"],
     keyPoints: ["ID Token", "openid Scope", "Nonce", "UserInfo", "Standard Claims"],
+    sourceUrl: "https://openid.net/specs/openid-connect-core-1_0.html",
   },
   {
     slug: "webauthn-level-3",
