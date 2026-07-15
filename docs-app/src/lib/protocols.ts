@@ -19,7 +19,7 @@ export type Protocol = {
   actors: FlowActor[];
   steps: FlowStep[];
   highlights: { label: string; value: string }[];
-  family?: "OAuth 2.0" | "OAuth 2.1" | "OpenID Connect";
+  family?: "OAuth 2.0" | "OAuth 2.1" | "OpenID Connect" | "FIDO" | "FIDO2";
   status?: "recommended" | "specialized" | "legacy";
 };
 

@@ -280,6 +280,12 @@ export default function Documentation() {
               <a href="/flows/openid-connect/">
                 OpenID Connect <span>→</span>
               </a>
+              <a href="/flows/fido2-registration/">
+                FIDO2 / WebAuthn <span>→</span>
+              </a>
+              <a href="/specs/fido-uaf-1-1/">
+                FIDO UAF / U2F <span>→</span>
+              </a>
             </div>
           </div>
           <ol className="steps">

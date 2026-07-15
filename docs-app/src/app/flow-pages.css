@@ -707,6 +707,15 @@
 .specMeta strong {
   font-size: 0.8rem;
 }
+.specSource {
+  margin-top: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  color: var(--spec-accent);
+  font-family: ui-monospace, monospace;
+  font-size: 0.62rem;
+  text-decoration: none;
+}
 .keyPointSection {
   padding: 55px 0;
   border-top: 1px solid var(--line);

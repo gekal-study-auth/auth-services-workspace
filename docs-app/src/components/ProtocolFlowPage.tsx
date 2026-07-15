@@ -18,15 +18,12 @@ export function ProtocolFlowPage({ protocol }: { protocol: Protocol }) {
             <span>Auth Services</span>
           </a>
           <div className="protocolTabs">
-            {specifications.map((item) => (
-              <a
-                className={item.slug === specification?.slug ? "active" : ""}
-                href={`/specs/${item.slug}/`}
-                key={item.slug}
-              >
-                {item.name}
+            <a href="/flows/">All flows</a>
+            {specification && (
+              <a className="active" href={`/specs/${specification.slug}/`}>
+                {specification.name}
               </a>
-            ))}
+            )}
           </div>
           <a className="backLink" href="/">
             Overview ↗

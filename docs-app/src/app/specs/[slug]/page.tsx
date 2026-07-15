@@ -34,6 +34,11 @@ export default async function SpecificationPage({ params }: { params: Promise<{ 
             <strong>{spec.status}</strong>
             <small>FLOWS</small>
             <strong>{spec.flowSlugs.length} documented</strong>
+            {spec.sourceUrl && (
+              <a className="specSource" href={spec.sourceUrl} rel="noreferrer" target="_blank">
+                Primary specification ↗
+              </a>
+            )}
           </div>
         </div>
       </header>
