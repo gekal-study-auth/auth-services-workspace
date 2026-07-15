@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { FlowNav } from "../../../components/FlowNav";
 import { protocols } from "../../../lib/protocols";
 import { getSpecification, specifications } from "../../../lib/specs";
 import { getSpecificationGuide } from "../../../lib/specification-guides";
@@ -15,15 +17,7 @@ export default async function SpecificationPage({ params }: { params: Promise<{ 
   return (
     <div className={`specPage ${spec.accent}`}>
       <header className="specHero">
-        <nav className="flowNav">
-          <a className="brand" href="/">
-            <span className="brandMark">A</span>
-            <span>Auth Services</span>
-          </a>
-          <a className="backLink" href="/flows/">
-            All flows ↗
-          </a>
-        </nav>
+        <FlowNav backHref="/flows/" backLabel="All flows ↗" />
         <div className="specHeroGrid">
           <div>
             <p className="sectionLabel">Specification</p>
@@ -120,7 +114,7 @@ export default async function SpecificationPage({ params }: { params: Promise<{ 
               {spec.flowSlugs.map((flowSlug) => {
                 const flow = protocols.find((item) => item.slug === flowSlug)!;
                 return (
-                  <a href={`/flows/${flow.slug}/`} key={flow.slug}>
+                  <Link href={`/flows/${flow.slug}/`} key={flow.slug}>
                     <span>
                       {spec.name}
                       {flow.status === "legacy" ? " · Legacy" : " · Interactive flow"}
@@ -128,7 +122,7 @@ export default async function SpecificationPage({ params }: { params: Promise<{ 
                     <strong>{flow.title}</strong>
                     <p>{flow.summary}</p>
                     <i>図を再生する →</i>
-                  </a>
+                  </Link>
                 );
               })}
             </div>
@@ -149,11 +143,11 @@ export default async function SpecificationPage({ params }: { params: Promise<{ 
             {specifications
               .filter((item) => item.slug !== spec.slug)
               .map((item) => (
-                <a href={`/specs/${item.slug}/`} key={item.slug}>
+                <Link href={`/specs/${item.slug}/`} key={item.slug}>
                   <small>{item.name}</small>
                   <strong>{item.fullName}</strong>
                   <span>→</span>
-                </a>
+                </Link>
               ))}
           </div>
         </section>

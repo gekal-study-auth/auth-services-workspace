@@ -1,10 +1,9 @@
 import { notFound } from "next/navigation";
 import { ProtocolFlowPage } from "../../../components/ProtocolFlowPage";
-import { additionalProtocols } from "../../../lib/additional-protocols";
-import { getProtocol } from "../../../lib/protocols";
+import { getProtocol, protocols } from "../../../lib/protocols";
 
 export function generateStaticParams() {
-  return additionalProtocols.map(({ slug }) => ({ slug }));
+  return protocols.map(({ slug }) => ({ slug }));
 }
 
 export default async function AdditionalFlowPage({

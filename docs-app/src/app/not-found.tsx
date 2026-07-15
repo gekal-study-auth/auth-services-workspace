@@ -1,3 +1,6 @@
+import Link from "next/link";
+import { SiteBrand } from "../components/SiteBrand";
+
 const destinations = [
   {
     label: "FLOW LIBRARY",
@@ -26,12 +29,7 @@ export default function NotFound() {
       <div className="ambient ambientTwo" />
 
       <nav className="siteNav notFoundNav" aria-label="404ページのナビゲーション">
-        <a className="brand" href="/" aria-label="Auth Servicesのトップへ戻る">
-          <span className="brandMark" aria-hidden="true">
-            A
-          </span>
-          <span>Auth Services</span>
-        </a>
+        <SiteBrand ariaLabel="Auth Servicesのトップへ戻る" />
         <span className="notFoundNavStatus">404 / ROUTE NOT FOUND</span>
       </nav>
 
@@ -51,13 +49,13 @@ export default function NotFound() {
               認証フローや仕様の入口から、目的のページを探してみてください。
             </p>
             <div className="actions notFoundActions">
-              <a className="primary" href="/">
+              <Link className="primary" href="/">
                 <span>トップへ戻る</span>
                 <span aria-hidden="true">→</span>
-              </a>
-              <a className="secondary" href="/flows/">
+              </Link>
+              <Link className="secondary" href="/flows/">
                 フロー一覧を見る
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -88,12 +86,12 @@ export default function NotFound() {
           </div>
           <div className="notFoundGrid">
             {destinations.map((destination) => (
-              <a href={destination.href} key={destination.href}>
+              <Link href={destination.href} key={destination.href}>
                 <span>{destination.label}</span>
                 <h3>{destination.title}</h3>
                 <p>{destination.description}</p>
                 <strong aria-hidden="true">Explore →</strong>
-              </a>
+              </Link>
             ))}
           </div>
         </section>

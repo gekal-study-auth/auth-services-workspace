@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const services = [
   {
     id: "01",
@@ -69,7 +71,7 @@ export default function Documentation() {
           </a>
           <div className="navLinks">
             <a href="#architecture">Architecture</a>
-            <a href="/flows/">Flows</a>
+            <Link href="/flows/">Flows</Link>
             <a href="#start">Quick start</a>
           </div>
           <a className="navCta" href="https://github.com/gekal-study-auth/auth-services-workspace">
@@ -271,21 +273,21 @@ export default function Documentation() {
               BFFがOAuthトランザクションとトークンを管理し、ブラウザには安全なセッションCookieだけを渡します。
             </p>
             <div className="flowSpecLinks">
-              <a href="/flows/oauth-2-0/">
+              <Link href="/flows/oauth-2-0/">
                 OAuth 2.0 <span>→</span>
-              </a>
-              <a href="/flows/oauth-2-1/">
+              </Link>
+              <Link href="/flows/oauth-2-1/">
                 OAuth 2.1 <span>→</span>
-              </a>
-              <a href="/flows/openid-connect/">
+              </Link>
+              <Link href="/flows/openid-connect/">
                 OpenID Connect <span>→</span>
-              </a>
-              <a href="/flows/fido2-registration/">
+              </Link>
+              <Link href="/flows/fido2-registration/">
                 FIDO2 / WebAuthn <span>→</span>
-              </a>
-              <a href="/specs/fido-uaf-1-1/">
+              </Link>
+              <Link href="/specs/fido-uaf-1-1/">
                 FIDO UAF / U2F <span>→</span>
-              </a>
+              </Link>
             </div>
           </div>
           <ol className="steps">
