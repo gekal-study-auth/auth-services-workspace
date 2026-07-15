@@ -69,7 +69,7 @@ export default function Documentation() {
           </a>
           <div className="navLinks">
             <a href="#architecture">Architecture</a>
-            <a href="#flow">Flow</a>
+            <a href="/flows/oauth-2-1/">Flows</a>
             <a href="#start">Quick start</a>
           </div>
           <a className="navCta" href="https://github.com/gekal-study-auth/auth-services-workspace">
@@ -270,6 +270,17 @@ export default function Documentation() {
             <p>
               BFFがOAuthトランザクションとトークンを管理し、ブラウザには安全なセッションCookieだけを渡します。
             </p>
+            <div className="flowSpecLinks">
+              <a href="/flows/oauth-2-0/">
+                OAuth 2.0 <span>→</span>
+              </a>
+              <a href="/flows/oauth-2-1/">
+                OAuth 2.1 <span>→</span>
+              </a>
+              <a href="/flows/openid-connect/">
+                OpenID Connect <span>→</span>
+              </a>
+            </div>
           </div>
           <ol className="steps">
             {steps.map(([label, title, text], index) => (

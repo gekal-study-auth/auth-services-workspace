@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./styles.css";
+import "./flow-pages.css";
+import "./flow-pages.css";
 
 export const metadata: Metadata = {
   title: "Auth Services Workspace",
