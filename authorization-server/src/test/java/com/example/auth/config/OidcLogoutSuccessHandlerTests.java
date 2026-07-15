@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -66,12 +67,32 @@ class OidcLogoutSuccessHandlerTests {
         new OidcLogoutAuthenticationToken(
             idToken, principal, "session-id", "nextjs-client", "https://client.example/", null);
 
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    when(request.getParameter("revoke_tokens")).thenReturn("true");
     new OidcLogoutSuccessHandler(service)
-        .onAuthenticationSuccess(
-            mock(HttpServletRequest.class), mock(HttpServletResponse.class), logout);
+        .onAuthenticationSuccess(request, mock(HttpServletResponse.class), logout);
 
     verify(service).save(any());
     assertThat(saved.get().getAccessToken().isInvalidated()).isTrue();
     assertThat(saved.get().getToken(OidcIdToken.class).isInvalidated()).isTrue();
+  }
+
+  @Test
+  void endsSessionWithoutRevokingTokensByDefault() throws Exception {
+    Instant now = Instant.now();
+    OidcIdToken idToken =
+        new OidcIdToken(
+            "id-token", now, now.plusSeconds(300), Map.of("sub", "user", "aud", "nextjs-client"));
+    var principal = UsernamePasswordAuthenticationToken.authenticated("user", "password", Set.of());
+    var logout =
+        new OidcLogoutAuthenticationToken(
+            idToken, principal, "session-id", "nextjs-client", "https://client.example/", null);
+    OAuth2AuthorizationService service = mock(OAuth2AuthorizationService.class);
+
+    new OidcLogoutSuccessHandler(service)
+        .onAuthenticationSuccess(
+            mock(HttpServletRequest.class), mock(HttpServletResponse.class), logout);
+
+    verifyNoInteractions(service);
   }
 }

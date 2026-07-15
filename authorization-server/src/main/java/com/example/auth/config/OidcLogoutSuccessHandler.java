@@ -18,6 +18,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 final class OidcLogoutSuccessHandler implements AuthenticationSuccessHandler {
   private static final Logger log = LoggerFactory.getLogger(OidcLogoutSuccessHandler.class);
   private static final OAuth2TokenType ID_TOKEN = new OAuth2TokenType("id_token");
+  private static final String REVOKE_TOKENS_PARAMETER = "revoke_tokens";
 
   private final OAuth2AuthorizationService authorizations;
   private final AuthenticationSuccessHandler sessionLogout =
@@ -32,28 +33,34 @@ final class OidcLogoutSuccessHandler implements AuthenticationSuccessHandler {
       HttpServletRequest request, HttpServletResponse response, Authentication authentication)
       throws IOException, ServletException {
     OidcLogoutAuthenticationToken logout = (OidcLogoutAuthenticationToken) authentication;
-    OAuth2Authorization authorization =
-        authorizations.findByToken(logout.getIdTokenHint(), ID_TOKEN);
-    if (authorization != null) {
-      OAuth2Authorization.Builder revoked = OAuth2Authorization.from(authorization);
-      if (authorization.getAccessToken() != null) {
-        revoked.invalidate(authorization.getAccessToken().getToken());
-      }
-      if (authorization.getRefreshToken() != null) {
-        revoked.invalidate(authorization.getRefreshToken().getToken());
-      }
-      OAuth2Authorization.Token<OidcIdToken> idToken = authorization.getToken(OidcIdToken.class);
-      if (idToken != null) {
-        revoked.invalidate(idToken.getToken());
-      }
-      authorizations.save(revoked.build());
-      log.info(
-          "event=oidc_logout_tokens_revoked authorization_id={} principal={}",
-          authorization.getId(),
-          authorization.getPrincipalName());
+    if (Boolean.parseBoolean(request.getParameter(REVOKE_TOKENS_PARAMETER))) {
+      revokeTokens(logout);
     }
 
     sessionLogout.onAuthenticationSuccess(request, response, authentication);
     log.info("event=oidc_logout_session_ended principal={}", authentication.getName());
+  }
+
+  private void revokeTokens(OidcLogoutAuthenticationToken logout) {
+    OAuth2Authorization authorization =
+        authorizations.findByToken(logout.getIdTokenHint(), ID_TOKEN);
+    if (authorization == null) return;
+
+    OAuth2Authorization.Builder revoked = OAuth2Authorization.from(authorization);
+    if (authorization.getAccessToken() != null) {
+      revoked.invalidate(authorization.getAccessToken().getToken());
+    }
+    if (authorization.getRefreshToken() != null) {
+      revoked.invalidate(authorization.getRefreshToken().getToken());
+    }
+    OAuth2Authorization.Token<OidcIdToken> idToken = authorization.getToken(OidcIdToken.class);
+    if (idToken != null) {
+      revoked.invalidate(idToken.getToken());
+    }
+    authorizations.save(revoked.build());
+    log.info(
+        "event=oidc_logout_tokens_revoked authorization_id={} principal={}",
+        authorization.getId(),
+        authorization.getPrincipalName());
   }
 }

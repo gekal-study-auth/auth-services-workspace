@@ -87,6 +87,18 @@ describe("OAuth 2.1 Authorization Code + PKCE", () => {
     assert.equal(url.pathname, "/connect/logout");
     assert.equal(url.searchParams.get("id_token_hint"), "header.payload.signature");
     assert.equal(url.searchParams.get("post_logout_redirect_uri"), "https://client.example/");
+    assert.equal(url.searchParams.has("revoke_tokens"), false);
+  });
+
+  it("explicitly requests token revocation only for the destructive logout", () => {
+    const url = createEndSessionUrl(
+      "https://authorization.example",
+      "header.payload.signature",
+      "https://client.example/",
+      true,
+    );
+
+    assert.equal(url.searchParams.get("revoke_tokens"), "true");
   });
 });
 

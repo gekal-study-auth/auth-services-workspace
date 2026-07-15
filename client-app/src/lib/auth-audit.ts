@@ -3,7 +3,12 @@ import "server-only";
 import { Pool } from "pg";
 
 export type AuthEventType =
-  "LOGIN_STARTED" | "LOGIN_SUCCEEDED" | "LOGIN_DENIED" | "LOGIN_FAILED" | "LOGOUT";
+  | "LOGIN_STARTED"
+  | "LOGIN_SUCCEEDED"
+  | "LOGIN_DENIED"
+  | "LOGIN_FAILED"
+  | "LOGOUT"
+  | "LOGOUT_WITH_TOKEN_REVOCATION";
 
 export type AuthEvent = {
   id: string;

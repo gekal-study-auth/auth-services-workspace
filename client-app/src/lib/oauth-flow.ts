@@ -65,9 +65,11 @@ export function createEndSessionUrl(
   authorizationServerUrl: string,
   idToken: string,
   postLogoutRedirectUri: string,
+  revokeTokens = false,
 ) {
   const url = new URL("/connect/logout", authorizationServerUrl);
   url.searchParams.set("id_token_hint", idToken);
   url.searchParams.set("post_logout_redirect_uri", postLogoutRedirectUri);
+  if (revokeTokens) url.searchParams.set("revoke_tokens", "true");
   return url;
 }
