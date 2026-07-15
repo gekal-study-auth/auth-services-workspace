@@ -146,7 +146,7 @@ npm run build
 
 `main`ブランチへ`docs-app`またはPages workflowの変更をpushすると、`.github/workflows/deploy-docs.yml`が静的ファイルをGitHub Pages artifactとしてアップロードし、Pagesへデプロイします。リポジトリのSettings → Pages → Build and deploymentでSourceを「GitHub Actions」に設定してください。
 
-公開URLは`https://gekal-study-auth.github.io/auth-services-workspace/`です。GitHub Actions上ではリポジトリ名から`basePath`を自動設定し、ローカル開発では`http://localhost:3000`のルートで表示します。
+公開URLは`https://auth-services-workspace.gekal.cn/`です。カスタムドメインのルートから静的アセットを配信し、ローカル開発では`http://localhost:3000`で表示します。
 
 ## エンドポイント
 
