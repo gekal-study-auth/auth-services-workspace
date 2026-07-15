@@ -80,6 +80,15 @@ p {
   font-size: 0.86rem;
 }
 
+.error {
+  margin: 22px 0 0;
+  padding: 14px 16px;
+  border: 1px solid #ef7b72;
+  border-radius: 12px;
+  background: #471c24;
+  color: #ffd9d5;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));

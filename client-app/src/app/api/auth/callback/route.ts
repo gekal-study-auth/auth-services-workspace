@@ -11,11 +11,19 @@ type TokenResponse = { access_token: string; id_token: string; expires_in: numbe
 
 export async function GET(request: NextRequest) {
   const error = request.nextUrl.searchParams.get("error");
-  if (error) return NextResponse.json({ error }, { status: 400 });
-
-  const code = request.nextUrl.searchParams.get("code");
   const state = request.nextUrl.searchParams.get("state");
   const transaction = unseal<LoginTransaction>(request.cookies.get("oauth_transaction")?.value);
+  if (error) {
+    const validState = Boolean(state && transaction && state === transaction.state);
+    const errorCode = validState && error === "access_denied" ? "access_denied" : "oauth_error";
+    const response = NextResponse.redirect(
+      new URL(`/?auth_error=${encodeURIComponent(errorCode)}`, oauthConfig.appBaseUrl),
+    );
+    response.cookies.set("oauth_transaction", "", secureCookie(0));
+    return response;
+  }
+
+  const code = request.nextUrl.searchParams.get("code");
   if (
     !code ||
     !state ||
