@@ -13,7 +13,7 @@ export type Specification = {
 export const specifications: Specification[] = [
   {
     slug: "rfc-6749",
-    name: "RFC 6749",
+    name: "OAuth 2.0 (RFC 6749)",
     fullName: "The OAuth 2.0 Authorization Framework",
     status: "Published October 2012",
     summary:
@@ -36,7 +36,7 @@ export const specifications: Specification[] = [
   },
   {
     slug: "rfc-8628",
-    name: "RFC 8628",
+    name: "OAuth 2.0 Device Authorization (RFC 8628)",
     fullName: "OAuth 2.0 Device Authorization Grant",
     status: "Published August 2019",
     summary:
@@ -69,7 +69,7 @@ export const specifications: Specification[] = [
   },
   {
     slug: "oidc-core",
-    name: "OIDC Core 1.0",
+    name: "OpenID Connect Core 1.0",
     fullName: "OpenID Connect Core 1.0",
     status: "Identity layer on OAuth 2.0",
     summary:
@@ -80,7 +80,7 @@ export const specifications: Specification[] = [
   },
   {
     slug: "webauthn-level-3",
-    name: "WebAuthn Level 3",
+    name: "FIDO2 WebAuthn Level 3",
     fullName: "Web Authentication: Public Key Credentials",
     status: "W3C Web Authentication specification",
     summary:
@@ -98,7 +98,7 @@ export const specifications: Specification[] = [
   },
   {
     slug: "ctap-2-2",
-    name: "CTAP 2.2",
+    name: "FIDO2 CTAP 2.2",
     fullName: "Client to Authenticator Protocol",
     status: "FIDO Alliance Review Draft",
     summary:

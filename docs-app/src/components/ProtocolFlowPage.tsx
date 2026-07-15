@@ -52,13 +52,13 @@ export function ProtocolFlowPage({ protocol }: { protocol: Protocol }) {
         <AnimatedFlowDiagram protocol={protocol} />
         <section className="comparisonNav">
           <div>
-            <p className="sectionLabel">Continue learning</p>
-            <h2>仕様の違いを、フローで比較する。</h2>
+            <p className="sectionLabel">Related flows</p>
+            <h2>同じ仕様のフローを、続けて理解する。</h2>
           </div>
           <div className="comparisonLinks">
             {relatedFlows.map((item) => (
               <a href={`/flows/${item.slug}/`} key={item.slug}>
-                <span>{item.eyebrow.split(" /")[0]}</span>
+                <span>{specification?.name ?? "Related flow"}</span>
                 <strong>{item.shortName}</strong>
                 <i>→</i>
               </a>

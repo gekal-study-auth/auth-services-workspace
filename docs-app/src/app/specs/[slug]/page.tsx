@@ -65,7 +65,8 @@ export default async function SpecificationPage({ params }: { params: Promise<{ 
               return (
                 <a href={`/flows/${flow.slug}/`} key={flow.slug}>
                   <span>
-                    {flow.status === "legacy" ? "Legacy / migration reference" : flow.eyebrow}
+                    {spec.name}
+                    {flow.status === "legacy" ? " · Legacy" : " · Interactive flow"}
                   </span>
                   <strong>{flow.title}</strong>
                   <p>{flow.summary}</p>
