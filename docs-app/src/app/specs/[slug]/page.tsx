@@ -110,28 +110,30 @@ export default async function SpecificationPage({ params }: { params: Promise<{ 
             </ol>
           </section>
         )}
-        <section className="specFlowSection">
-          <div>
-            <p className="sectionLabel">Interactive flows</p>
-            <h2>この仕様に属するフロー</h2>
-          </div>
-          <div className="specFlowList">
-            {spec.flowSlugs.map((flowSlug) => {
-              const flow = protocols.find((item) => item.slug === flowSlug)!;
-              return (
-                <a href={`/flows/${flow.slug}/`} key={flow.slug}>
-                  <span>
-                    {spec.name}
-                    {flow.status === "legacy" ? " · Legacy" : " · Interactive flow"}
-                  </span>
-                  <strong>{flow.title}</strong>
-                  <p>{flow.summary}</p>
-                  <i>図を再生する →</i>
-                </a>
-              );
-            })}
-          </div>
-        </section>
+        {spec.flowSlugs.length > 0 && (
+          <section className="specFlowSection">
+            <div>
+              <p className="sectionLabel">Interactive flows</p>
+              <h2>この仕様に属するフロー</h2>
+            </div>
+            <div className="specFlowList">
+              {spec.flowSlugs.map((flowSlug) => {
+                const flow = protocols.find((item) => item.slug === flowSlug)!;
+                return (
+                  <a href={`/flows/${flow.slug}/`} key={flow.slug}>
+                    <span>
+                      {spec.name}
+                      {flow.status === "legacy" ? " · Legacy" : " · Interactive flow"}
+                    </span>
+                    <strong>{flow.title}</strong>
+                    <p>{flow.summary}</p>
+                    <i>図を再生する →</i>
+                  </a>
+                );
+              })}
+            </div>
+          </section>
+        )}
         {guide && (
           <section className="specRelationship">
             <p className="sectionLabel">Position and relationship</p>

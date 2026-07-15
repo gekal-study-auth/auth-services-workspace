@@ -169,6 +169,96 @@ export const specifications: Specification[] = [
     sourceUrl:
       "https://openid.net/specs/openid-client-initiated-backchannel-authentication-core-1_0.html",
   },
+  {
+    slug: "rfc-7636",
+    name: "OAuth 2.0 PKCE (RFC 7636)",
+    fullName: "Proof Key for Code Exchange by OAuth Public Clients",
+    status: "Published September 2015",
+    summary:
+      "認可コードを横取りされてもトークンへ交換できないよう、一度限りの秘密値でClientと認可リクエストを結び付ける仕様です。",
+    accent: "lime",
+    flowSlugs: ["oauth-2-1", "openid-connect"],
+    keyPoints: [
+      "code_verifier",
+      "code_challenge",
+      "S256",
+      "Authorization Code Binding",
+      "One-time Proof",
+    ],
+    sourceUrl: "https://www.rfc-editor.org/rfc/rfc7636.html",
+  },
+  {
+    slug: "rfc-7519",
+    name: "JSON Web Token (RFC 7519)",
+    fullName: "JSON Web Token (JWT)",
+    status: "Published May 2015",
+    summary:
+      "当事者間でClaimsをコンパクトに受け渡す形式を定義します。OAuthのアクセストークンやOIDCのID Tokenで広く利用されます。",
+    accent: "cyan",
+    flowSlugs: ["openid-connect", "oidc-hybrid"],
+    keyPoints: [
+      "Header / Payload / Signature",
+      "Registered Claims",
+      "iss / sub / aud",
+      "exp / nbf / iat",
+      "JWS / JWE",
+    ],
+    sourceUrl: "https://www.rfc-editor.org/rfc/rfc7519.html",
+  },
+  {
+    slug: "rfc-9449",
+    name: "OAuth 2.0 DPoP (RFC 9449)",
+    fullName: "OAuth 2.0 Demonstrating Proof of Possession",
+    status: "Published September 2023",
+    summary:
+      "アクセストークンをClientの公開鍵へ結び付け、盗まれたBearer Tokenの第三者による再利用を防ぐSender-Constrained Token仕様です。",
+    accent: "violet",
+    flowSlugs: [],
+    keyPoints: [
+      "DPoP Proof JWT",
+      "Public-key Binding",
+      "dpop+jwt",
+      "jti / htm / htu",
+      "Token Replay Protection",
+    ],
+    sourceUrl: "https://www.rfc-editor.org/rfc/rfc9449.html",
+  },
+  {
+    slug: "saml-2-0",
+    name: "SAML 2.0",
+    fullName: "Security Assertion Markup Language 2.0",
+    status: "OASIS Standard · March 2005",
+    summary:
+      "Identity ProviderとService Providerの間で認証・属性・認可判断をXML Assertionとして交換する、企業SSOで広く使われる仕様です。",
+    accent: "violet",
+    flowSlugs: [],
+    keyPoints: [
+      "Identity Provider",
+      "Service Provider",
+      "SAML Assertion",
+      "Web Browser SSO",
+      "Metadata / Trust",
+    ],
+    sourceUrl: "https://docs.oasis-open.org/security/saml/v2.0/",
+  },
+  {
+    slug: "rfc-7644",
+    name: "SCIM 2.0 (RFC 7644)",
+    fullName: "System for Cross-domain Identity Management: Protocol",
+    status: "Published September 2015",
+    summary:
+      "組織間でユーザーとグループを作成・更新・無効化するRESTプロトコルです。認証そのものではなく、SSOを支えるIDライフサイクルを標準化します。",
+    accent: "cyan",
+    flowSlugs: [],
+    keyPoints: [
+      "Users / Groups",
+      "Provisioning",
+      "Deprovisioning",
+      "PATCH / Bulk",
+      "Service Provider Configuration",
+    ],
+    sourceUrl: "https://www.rfc-editor.org/rfc/rfc7644.html",
+  },
 ];
 
 export const getSpecification = (slug: string) => specifications.find((item) => item.slug === slug);

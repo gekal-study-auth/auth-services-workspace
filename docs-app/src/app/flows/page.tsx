@@ -36,17 +36,26 @@ export default function FlowCatalogPage() {
               <a href={`/specs/${spec.slug}/`}>仕様ページを見る →</a>
             </div>
             <div className="catalogGrid">
-              {spec.flowSlugs.map((slug) => {
-                const flow = protocols.find((item) => item.slug === slug)!;
-                return (
-                  <a className="catalogCard" href={`/flows/${flow.slug}/`} key={flow.slug}>
-                    <span>{flow.status === "legacy" ? "LEGACY" : "INTERACTIVE FLOW"}</span>
-                    <h3>{flow.shortName}</h3>
-                    <p>{flow.summary}</p>
-                    <i>View flow →</i>
-                  </a>
-                );
-              })}
+              {spec.flowSlugs.length > 0 ? (
+                spec.flowSlugs.map((slug) => {
+                  const flow = protocols.find((item) => item.slug === slug)!;
+                  return (
+                    <a className="catalogCard" href={`/flows/${flow.slug}/`} key={flow.slug}>
+                      <span>{flow.status === "legacy" ? "LEGACY" : "INTERACTIVE FLOW"}</span>
+                      <h3>{flow.shortName}</h3>
+                      <p>{flow.summary}</p>
+                      <i>View flow →</i>
+                    </a>
+                  );
+                })
+              ) : (
+                <a className="catalogCard catalogSpecCard" href={`/specs/${spec.slug}/`}>
+                  <span>SPECIFICATION GUIDE</span>
+                  <h3>{spec.keyPoints.slice(0, 3).join(" · ")}</h3>
+                  <p>{spec.summary}</p>
+                  <i>Read specification →</i>
+                </a>
+              )}
             </div>
           </section>
         ))}

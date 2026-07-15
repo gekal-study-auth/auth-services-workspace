@@ -275,6 +275,156 @@ const guides: Record<string, SpecificationGuide> = {
     audience:
       "金融、コールセンター、店舗端末、スマートデバイスなど、操作端末と認証端末を分けたいシステム設計者向けです。",
   },
+  "rfc-7636": {
+    introduction: [
+      "PKCE（Proof Key for Code Exchange）は、Authorization Code Flowで発行された認可コードを、認可リクエストを始めたClientだけがトークンへ交換できるようにする仕組みです。読み方は『ピクシー』です。",
+      "Clientは最初に推測困難なcode_verifierを作り、そのSHA-256ハッシュであるcode_challengeだけをAuthorization Serverへ送ります。Token Endpointでは元のcode_verifierを提示し、サーバーが再計算した値と最初のchallengeが一致した場合だけトークンを発行します。",
+    ],
+    purpose: [
+      {
+        title: "認可コードをClientへ結び付ける",
+        text: "認可コードだけでなく、処理開始時に作った一度限りの秘密値も要求し、別のClientによるコード交換を防ぎます。",
+      },
+      {
+        title: "Client Secretを置けない環境を守る",
+        text: "SPAやモバイルアプリのように固定Secretを安全に保管できないPublic Clientでも、リクエストごとの証明を利用できます。",
+      },
+      {
+        title: "コード横取りの被害を抑える",
+        text: "カスタムURL Schemeやログなどから認可コードが漏れても、code_verifierがなければトークンへ交換できません。",
+      },
+    ],
+    security: [
+      "code_verifierは暗号学的に安全な乱数から生成し、43〜128文字の許可された文字列として扱います。",
+      "code_challenge_methodにはplainではなくS256を使用します。",
+      "code_verifierはブラウザURLへ含めず、Clientのセッションなど外部へ漏れにくい場所に一時保存します。",
+      "PKCEはstate、redirect_uri検証、Client認証を置き換えるものではなく、それぞれ別の攻撃を防ぎます。",
+    ],
+    relationship:
+      "PKCEはRFC 6749のAuthorization Code Grantを拡張します。OAuth 2.1ではPublic ClientだけでなくAuthorization Code Flow全般の基本要件として扱われます。OIDC Authorization Code Flowでも同じ仕組みを利用できます。",
+    audience:
+      "Authorization Code Flowを実装し、code_verifierとcode_challengeがどこで作られ、なぜ必要なのかを理解したい人向けです。",
+  },
+  "rfc-7519": {
+    introduction: [
+      "JWTは、名前や権限、有効期限といったClaimsをJSONで表し、URLでも扱いやすいコンパクトな文字列として交換する形式です。JWTという名前はトークンの形式を示すものであり、それだけでOAuthのアクセストークンやログインセッションになるわけではありません。",
+      "一般的な署名付きJWTはHeader、Payload、Signatureの3部分をピリオドで連結します。Payloadは暗号化されていないため誰でもBase64URLデコードできます。信頼性は秘密性ではなく、JWS署名とClaimsの検証によって確かめます。",
+    ],
+    purpose: [
+      {
+        title: "Claimsを共通形式で運ぶ",
+        text: "iss、sub、aud、expなどの登録済みClaimと、用途固有のClaimをJSONオブジェクトとして表現します。",
+      },
+      {
+        title: "改ざんを検出する",
+        text: "JWSで署名されたJWTでは、HeaderやPayloadが発行後に変更されていないことを受信側が検証できます。",
+      },
+      {
+        title: "サービス間で検証する",
+        text: "公開鍵署名を利用すると、秘密鍵を持たないResource Serverも発行者の公開鍵でトークンを検証できます。",
+      },
+    ],
+    security: [
+      "algをトークン任せにせず、受信側が許可した署名Algorithmだけを受け入れます。",
+      "署名だけでなくiss、aud、exp、nbfと、用途に必要なnonceやscopeも検証します。",
+      "Payloadへパスワードや不要な個人情報を入れません。機密性が必要ならJWEまたは別の安全な保存・通信方法を選びます。",
+      "JWTの用途を分離し、ID TokenをアクセストークンとしてAPIへ送らないようにします。",
+    ],
+    relationship:
+      "RFC 7519はClaimsとJWT表現を定義し、実際の署名はJWS、暗号化はJWE、鍵表現はJWKが支えます。OIDCはID TokenをJWTとして定義しますが、OAuthのアクセストークンは必ずJWTであるとは限りません。",
+    audience:
+      "JWTの三つの部分、署名と暗号化の違い、OAuth/OIDCで検証すべきClaimsを整理したい人向けです。",
+  },
+  "rfc-9449": {
+    introduction: [
+      "DPoPは、OAuthアクセストークンをClientが持つ鍵ペアへ結び付ける仕組みです。通常のBearer Tokenは持っている人なら誰でも利用できますが、DPoP Tokenは対応する秘密鍵でリクエストごとの証明を作れるClientだけが利用できます。",
+      "ClientはToken EndpointとResource ServerへのリクエストごとにDPoP Proof JWTを作ります。ProofにはHTTP Method、送信先URI、発行時刻、一意なjtiなどが含まれ、Resource Serverは署名と内容、アクセストークンとの鍵Bindingを検証します。",
+    ],
+    purpose: [
+      {
+        title: "Tokenを鍵へ結び付ける",
+        text: "Authorization ServerはClient公開鍵のthumbprintをアクセストークンへ記録し、Resource Serverが同じ鍵の証明を要求できるようにします。",
+      },
+      {
+        title: "漏えいTokenの再利用を防ぐ",
+        text: "攻撃者がアクセストークンだけを取得しても、対応する秘密鍵がなければ有効なAPIリクエストを作れません。",
+      },
+      {
+        title: "リクエスト単位で証明する",
+        text: "htmとhtuでProofをHTTPリクエストへ結び付け、別Endpointや別Methodへの転用を防ぎます。",
+      },
+    ],
+    security: [
+      "秘密鍵はClient外へ出さず、可能ならOSのKey Storeやハードウェア保護領域へ保存します。",
+      "Resource Serverは署名、typ、jti、iat、htm、htu、athと公開鍵Bindingをまとめて検証します。",
+      "Proofのjtiと短い有効時間を利用してReplayを検出し、必要に応じてServer Nonceを要求します。",
+      "DPoPはTLSを置き換えません。TokenとProofは常にHTTPSで送信します。",
+    ],
+    relationship:
+      "DPoPはOAuth 2.0のBearer TokenをSender-Constrained Tokenとして強化します。相互TLSも同じ目的を持ちますが、DPoPはアプリケーション層の鍵証明を使うため、Public Clientやプロキシを含む構成で採用しやすい特徴があります。",
+    audience:
+      "アクセストークン漏えい後の再利用まで防ぎたいAPI設計者や、Bearer TokenとSender-Constrained Tokenの違いを学びたい人向けです。",
+  },
+  "saml-2-0": {
+    introduction: [
+      "SAML 2.0は、組織やサービスの境界を越えて認証結果とユーザー属性を交換するためのXMLベースの標準です。企業向けSingle Sign-Onで広く利用され、ログインを担当するIdentity Provider（IdP）と、アプリを提供するService Provider（SP）を分離します。",
+      "代表的なWeb Browser SSOでは、SPがAuthnRequestをIdPへ送り、ユーザーがIdPで認証します。IdPは署名付きSAML ResponseとAssertionをブラウザ経由でSPのAssertion Consumer Serviceへ返し、SPが検証後にローカルセッションを開始します。",
+    ],
+    purpose: [
+      {
+        title: "組織間SSOを実現する",
+        text: "利用者は組織のIdPで一度認証し、連携する複数のSPへ個別パスワードを登録せずアクセスできます。",
+      },
+      {
+        title: "認証結果と属性を伝える",
+        text: "AssertionにSubject、認証時刻、認証Context、所属や役割などのAttributeを含められます。",
+      },
+      {
+        title: "Metadataで信頼を設定する",
+        text: "Entity ID、Endpoint、証明書、対応BindingをMetadataとして交換し、連携相手と検証鍵を事前設定します。",
+      },
+    ],
+    security: [
+      "SAML ResponseまたはAssertionの署名を信頼済みIdP証明書で検証し、未署名部分の参照を避けます。",
+      "Issuer、Audience、Recipient、Destination、InResponseTo、有効時間をSP自身の要求と照合します。",
+      "Assertionを一度だけ受理し、短い有効時間とID記録でReplayを防ぎます。",
+      "XML Signature Wrappingを防げる実績あるライブラリを使い、独自XML署名検証を実装しません。",
+    ],
+    relationship:
+      "SAMLとOpenID ConnectはどちらもFederated LoginとSSOに利用できます。SAMLはXMLとブラウザPOST/Redirect Bindingを中心とし、OIDCはOAuth 2.0、JSON、JWT、RESTとの親和性が高いため、Web・モバイルの新規サービスではOIDCが選ばれることが多いです。",
+    audience:
+      "企業SSO、IdP/SP、SAML Assertionの役割を理解し、OpenID Connectとの違いを整理したい人向けです。",
+  },
+  "rfc-7644": {
+    introduction: [
+      "SCIMは、クラウドサービス間でユーザーとグループのライフサイクルを自動管理するためのRESTプロトコルです。ログイン時に本人を確認する認証プロトコルではなく、入社・異動・退職に合わせてアカウントを準備し、権限の土台を最新に保つIdentity Provisioning仕様です。",
+      "Identity Providerや人事システムがSCIM Clientとなり、Service Providerの/Usersや/Groups Endpointを操作します。共通Schema、検索Filter、PATCH、Bulk処理が定義され、サービスごとに異なるユーザー管理APIを減らします。",
+    ],
+    purpose: [
+      {
+        title: "アカウント管理を自動化する",
+        text: "利用開始前の作成、属性変更、グループ所属、利用終了時の無効化を組織のID情報と同期します。",
+      },
+      {
+        title: "ユーザー表現を共通化する",
+        text: "UserとGroupのCore Schemaにより、userName、name、emails、active、membersなどを共通形式で扱います。",
+      },
+      {
+        title: "退職者のアクセスを止める",
+        text: "SSO設定だけで終わらず、active=falseやアカウント削除を連携して不要なアクセス権を速やかに失効させます。",
+      },
+    ],
+    security: [
+      "SCIM EndpointはOAuthアクセストークンなどで強く認証し、Provisioningに必要な最小権限だけを付与します。",
+      "すべてHTTPSで通信し、ログへアクセストークンや不要な個人属性を残しません。",
+      "externalIdやidを安定した識別子として扱い、表示名やメールアドレスだけでユーザーを誤結合しません。",
+      "削除と無効化の方針、再試行時の冪等性、監査ログ、管理者による変更との競合を設計します。",
+    ],
+    relationship:
+      "OIDCやSAMLは主にログイン時の認証結果を伝え、SCIMはログイン前後を含むアカウントのライフサイクルを管理します。SSOでログインを統合し、SCIMで作成・属性・所属・無効化を同期することで、Identity管理全体を構成できます。",
+    audience:
+      "Enterprise SSOと合わせてユーザーProvisioning、グループ同期、退職者のアクセス失効を設計する人向けです。",
+  },
 };
 
 export function getSpecificationGuide(slug: string) {
