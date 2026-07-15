@@ -33,7 +33,7 @@ class AuthorizationUiControllerTests {
             get("/ui-api/consent-context")
                 .with(user("user"))
                 .param("client_id", "nextjs-client")
-                .param("scope", "openid profile demo.read")
+                .param("scope", "demo.read profile openid")
                 .param("state", "state-value"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.clientName").value("Next.js BFF Client"))

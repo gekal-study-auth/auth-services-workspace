@@ -2,6 +2,7 @@ package com.example.auth.controller;
 
 import java.security.Principal;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/ui-api")
 public class AuthorizationUiController {
+  private static final List<String> SCOPE_ORDER = List.of("openid", "profile", "demo.read");
   private static final Map<String, String> SCOPE_DESCRIPTIONS =
       Map.of(
           OidcScopes.OPENID,
@@ -60,6 +62,12 @@ public class AuthorizationUiController {
     Set<String> previouslyApproved = existing == null ? Set.of() : existing.getScopes();
     List<ScopeView> scopes =
         requestedScopes.stream()
+            .sorted(
+                Comparator.comparingInt(
+                    name -> {
+                      int index = SCOPE_ORDER.indexOf(name);
+                      return index >= 0 ? index : Integer.MAX_VALUE;
+                    }))
             .map(
                 name ->
                     new ScopeView(

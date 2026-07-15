@@ -32,16 +32,27 @@ type ConsentContext = {
   csrf: { parameterName: string; token: string };
 };
 
+type LoadError = "authentication_required" | "context_unavailable";
+
+const clientLoginUrl =
+  process.env.NEXT_PUBLIC_CLIENT_LOGIN_URL ?? "https://client-app.local.gekal.cn/api/auth/login";
+
 export function ConsentForm() {
   const query = useSearchParams().toString();
   const [context, setContext] = useState<ConsentContext>();
-  const [loadError, setLoadError] = useState(false);
+  const [loadError, setLoadError] = useState<LoadError>();
   const [selectedScopes, setSelectedScopes] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetch(`/ui-api/consent-context?${query}`, { cache: "no-store", credentials: "same-origin" })
       .then((response) => {
+        if (response.redirected && new URL(response.url).pathname === "/login") {
+          throw new Error("authentication_required");
+        }
         if (!response.ok) throw new Error(String(response.status));
+        if (!response.headers.get("content-type")?.includes("application/json")) {
+          throw new Error("context_unavailable");
+        }
         return response.json() as Promise<ConsentContext>;
       })
       .then((loaded) => {
@@ -52,7 +63,13 @@ export function ConsentForm() {
           ),
         );
       })
-      .catch(() => setLoadError(true));
+      .catch((error: unknown) =>
+        setLoadError(
+          error instanceof Error && error.message === "authentication_required"
+            ? "authentication_required"
+            : "context_unavailable",
+        ),
+      );
   }, [query]);
 
   return (
@@ -61,7 +78,24 @@ export function ConsentForm() {
       title="アクセスを許可しますか？"
       description="許可する情報を確認してください。許可しない場合、Client Appへ情報やトークンは渡されません。"
     >
-      {loadError && <Alert severity="error">同意内容を読み込めませんでした。</Alert>}
+      {loadError === "authentication_required" && (
+        <Alert
+          severity="warning"
+          action={
+            <Button color="inherit" size="small" href={clientLoginUrl}>
+              ログインをやり直す
+            </Button>
+          }
+        >
+          認可サーバーのログインセッションが終了しました。Client
+          Appから認可フローをやり直してください。
+        </Alert>
+      )}
+      {loadError === "context_unavailable" && (
+        <Alert severity="error">
+          同意内容を読み込めませんでした。最初からログインをやり直してください。
+        </Alert>
+      )}
       {!context && !loadError && <CircularProgress size={26} />}
       {context && (
         <Stack spacing={2.5}>
