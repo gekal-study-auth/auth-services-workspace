@@ -152,6 +152,77 @@ function fidoExamples(protocol: Protocol, step: FlowStep): FlowExamples {
   };
 }
 
+function cibaExamples(protocol: Protocol, step: FlowStep): FlowExamples {
+  const text = `${step.label} ${step.message}`;
+  if (/Backchannel認証/.test(text)) {
+    return {
+      transport: "Client → OpenID Provider",
+      request: `POST /bc-authorize\n${formHeaders}\nAuthorization: Basic Y2liYS1jbGllbnQ6c2VjcmV0\n\nscope=openid%20profile&login_hint=user%40example.com&binding_message=店舗での支払いを承認`,
+      response: `HTTP/1.1 200 OK\n${jsonHeaders}\nCache-Control: no-store\n\n{\n  "auth_req_id": "1c266114-a1be-4252-8ad1-04986c5b9ac1",\n  "expires_in": 120,\n  "interval": 2\n}`,
+      handoff:
+        "Clientは受け取ったauth_req_idを、この認証処理の識別子として保存します。以降のToken Requestでも同じ値を使用します。",
+    };
+  }
+  if (/auth_req_idを返却/.test(text)) {
+    return {
+      transport: "OpenID Provider → Client",
+      request: `POST /bc-authorize\n${formHeaders}\nAuthorization: Basic Y2liYS1jbGllbnQ6c2VjcmV0\n\nscope=openid%20profile&login_hint=user%40example.com`,
+      response: `HTTP/1.1 200 OK\n${jsonHeaders}\nCache-Control: no-store\n\n{\n  "auth_req_id": "1c266114-a1be-4252-8ad1-04986c5b9ac1",\n  "expires_in": 120,\n  "interval": 2\n}`,
+      handoff:
+        "auth_req_idは認証結果そのものではありません。Clientはこの値を保管し、interval秒以上待ってからToken Endpointへ問い合わせます。",
+    };
+  }
+  if (/完了をPing通知/.test(text)) {
+    return {
+      transport: "OpenID Provider → Client Notification Endpoint",
+      request: `POST /ciba/callback\n${jsonHeaders}\nAuthorization: Bearer 8d67dc78-7faa-4d41-aabd-67707b374255\n\n{\n  "auth_req_id": "1c266114-a1be-4252-8ad1-04986c5b9ac1"\n}`,
+      response: `HTTP/1.1 204 No Content`,
+      handoff:
+        "Pingにはトークンを含めず、認証が終わったauth_req_idだけを通知します。Clientはnotification tokenを検証した後、同じauth_req_idでToken Endpointを呼びます。",
+    };
+  }
+  if (/トークンをPush配送/.test(text)) {
+    return {
+      transport: "OpenID Provider → Client Notification Endpoint",
+      request: `POST /ciba/callback\n${jsonHeaders}\nAuthorization: Bearer 8d67dc78-7faa-4d41-aabd-67707b374255\n\n{\n  "auth_req_id": "1c266114-a1be-4252-8ad1-04986c5b9ac1",\n  "access_token": "G5kXH2wHvUra0sHl...",\n  "token_type": "Bearer",\n  "expires_in": 300,\n  "id_token": "eyJraWQiOiJh..."\n}`,
+      response: `HTTP/1.1 204 No Content`,
+      handoff:
+        "Push Modeではこの通知にトークンが含まれます。ClientはToken Endpointを呼ばず、notification token、auth_req_id、ID Tokenを検証して一度だけ処理します。",
+    };
+  }
+  if (/poll/.test(text)) {
+    return {
+      transport: "Client → Token Endpoint",
+      request: `POST /oauth2/token\n${formHeaders}\nAuthorization: Basic Y2liYS1jbGllbnQ6c2VjcmV0\n\ngrant_type=urn:openid:params:grant-type:ciba&auth_req_id=1c266114-a1be-4252-8ad1-04986c5b9ac1`,
+      response: `HTTP/1.1 400 Bad Request\n${jsonHeaders}\nCache-Control: no-store\n\n{ "error": "authorization_pending" }`,
+      handoff:
+        "authorization_pendingは失敗ではなく、ユーザーの承認待ちです。Clientはintervalを守って、同じauth_req_idで再度問い合わせます。",
+    };
+  }
+  if (/トークンを返却|トークンを取得/.test(text)) {
+    return {
+      transport: "OpenID Provider → Client",
+      request: `POST /oauth2/token\n${formHeaders}\nAuthorization: Basic Y2liYS1jbGllbnQ6c2VjcmV0\n\ngrant_type=urn:openid:params:grant-type:ciba&auth_req_id=1c266114-a1be-4252-8ad1-04986c5b9ac1`,
+      response: `HTTP/1.1 200 OK\n${jsonHeaders}\nCache-Control: no-store\n\n{\n  "access_token": "G5kXH2wHvUra0sHl...",\n  "token_type": "Bearer",\n  "expires_in": 300,\n  "id_token": "eyJraWQiOiJh..."\n}`,
+      handoff:
+        "承認済みのauth_req_idは、この成功レスポンスを受け取った時点で使用済みになります。同じauth_req_idでトークンを再取得できません。",
+    };
+  }
+  if (/認証端末へ通知|内容を確認/.test(text)) {
+    return {
+      transport: "OpenID Provider ↔ Authentication Device",
+      request: `POST /authentication-requests\n${jsonHeaders}\n\n{\n  "request_id": "1c266114-...",\n  "client_name": "Example Store",\n  "binding_message": "店舗での支払いを承認"\n}`,
+      response: `HTTP/1.1 200 OK\n${jsonHeaders}\n\n{\n  "request_id": "1c266114-...",\n  "decision": "approved",\n  "authenticated_at": 1784102400\n}`,
+    };
+  }
+  return {
+    transport:
+      protocol.slug === "ciba-push" ? "Push result processing" : "Consumption Device → Client",
+    request: `POST /payments/confirm\n${jsonHeaders}\n\n{ "user_hint": "user@example.com", "amount": 1200 }`,
+    response: `HTTP/1.1 202 Accepted\n${jsonHeaders}\n\n{ "status": "authentication_pending" }`,
+  };
+}
+
 export function getFlowExamples(protocol: Protocol, step: FlowStep): FlowExamples {
   if (step.requestExample && step.responseExample) {
     return {
@@ -160,6 +231,7 @@ export function getFlowExamples(protocol: Protocol, step: FlowStep): FlowExample
       transport: "API exchange",
     };
   }
+  if (protocol.slug.startsWith("ciba-")) return cibaExamples(protocol, step);
   return protocol.family === "FIDO" || protocol.family === "FIDO2"
     ? fidoExamples(protocol, step)
     : oauthExamples(step);

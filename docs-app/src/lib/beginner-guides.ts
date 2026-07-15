@@ -43,6 +43,21 @@ export function getBeginnerGuide(protocol: Protocol): BeginnerGuide {
         "本人しか操作できない鍵で、サーバーから届いた一回限りの確認書へサインするイメージです。",
     };
   }
+  if (protocol.slug.startsWith("ciba-")) {
+    const delivery = protocol.slug.endsWith("poll")
+      ? "Clientは認証が終わるまで、決められた間隔で結果を問い合わせます。"
+      : protocol.slug.endsWith("ping")
+        ? "認証が終わるとOpenID ProviderがClientへ完了だけを通知し、Clientがトークンを取得します。"
+        : "認証が終わるとOpenID ProviderがClientへトークンを直接届けます。";
+    return {
+      goal: "操作中の端末へパスワードを入力せず、手元のスマートフォンなど別の端末で本人確認します。",
+      overview: `ClientがOpenID Providerへ直接、ユーザーの認証を依頼します。OpenID Providerは手元の認証端末へ通知し、ユーザーが内容を確認して承認します。${delivery}ブラウザのリダイレクトは使いません。`,
+      result:
+        "承認が完了するとClientはID TokenとAccess Tokenを受け取り、最初に始めた取引やログインを完了できます。",
+      metaphor:
+        "店舗で手続きを始めると、銀行アプリへ確認通知が届き、スマートフォンで承認するイメージです。店舗端末へ銀行のパスワードを入力する必要はありません。",
+    };
+  }
   if (protocol.slug === "openid-connect" || protocol.slug.startsWith("oidc-")) {
     return {
       goal: "安全にログインし、ログインした人が誰なのかをクライアントへ伝えます。",
@@ -125,6 +140,12 @@ export function actorExplanation(actor: FlowActor) {
     Authenticator: "秘密鍵を安全に保管し、生体認証やPINの確認と署名を行う端末機能です。",
     Resource: "アクセストークンを確認して、許可されたデータや機能を提供するAPIです。",
     "Relying Party": "ユーザーをログインさせるWebサービスです。公開鍵を保存し、署名を検証します。",
+    Consumption:
+      "認証を必要とする処理を開始する端末やサービスです。ユーザーの認証情報は受け取りません。",
+    "Auth Device":
+      "ユーザーが管理するスマートフォンなどです。要求内容を表示し、本人確認と承認を行います。",
+    "OpenID Provider":
+      "Clientからのバックチャネル要求を受け、認証端末とのやり取りとトークン発行を担当します。",
   };
   return descriptions[actor.name] ?? `${actor.detail}として、このフローに参加します。`;
 }

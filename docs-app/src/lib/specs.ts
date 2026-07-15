@@ -146,6 +146,25 @@ export const specifications: Specification[] = [
     ],
     sourceUrl: "https://fidoalliance.org/specs/fido-u2f-v1.2-ps-20170411/",
   },
+  {
+    slug: "openid-ciba-core-1-0",
+    name: "OpenID Connect CIBA Core 1.0",
+    fullName: "Client-Initiated Backchannel Authentication",
+    status: "OpenID Foundation Final Specification",
+    summary:
+      "ClientからOpenID Providerへバックチャネルで認証を開始し、ユーザーが別のAuthentication Deviceで本人確認・承認する非同期認証フローを定義します。",
+    accent: "cyan",
+    flowSlugs: ["ciba-poll", "ciba-ping", "ciba-push"],
+    keyPoints: [
+      "Backchannel Authentication Endpoint",
+      "auth_req_id",
+      "Consumption Device / Authentication Device",
+      "Poll / Ping / Push",
+      "No Browser Redirect",
+    ],
+    sourceUrl:
+      "https://openid.net/specs/openid-client-initiated-backchannel-authentication-core-1_0.html",
+  },
 ];
 
 export const getSpecification = (slug: string) => specifications.find((item) => item.slug === slug);
