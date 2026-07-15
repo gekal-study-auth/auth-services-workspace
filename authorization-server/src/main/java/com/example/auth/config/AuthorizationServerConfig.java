@@ -11,13 +11,16 @@ import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
@@ -27,14 +30,37 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class AuthorizationServerConfig {
+  private static final Logger log = LoggerFactory.getLogger(AuthorizationServerConfig.class);
+
   @Bean
   @Order(1)
-  SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+  SecurityFilterChain authorizationServerSecurityFilterChain(
+      HttpSecurity http, OAuth2AuthorizationService authorizations) throws Exception {
     OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
         OAuth2AuthorizationServerConfigurer.authorizationServer();
 
     http.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-        .with(authorizationServerConfigurer, server -> server.oidc(Customizer.withDefaults()))
+        .with(
+            authorizationServerConfigurer,
+            server ->
+                server.oidc(
+                    oidc ->
+                        oidc.logoutEndpoint(
+                            logout ->
+                                logout
+                                    .logoutResponseHandler(
+                                        new OidcLogoutSuccessHandler(authorizations))
+                                    .errorResponseHandler(
+                                        (request, response, exception) -> {
+                                          OAuth2AuthenticationException oauthException =
+                                              (OAuth2AuthenticationException) exception;
+                                          log.warn(
+                                              "event=oidc_logout_failed error_code={} description={}",
+                                              oauthException.getError().getErrorCode(),
+                                              oauthException.getError().getDescription());
+                                          response.sendError(
+                                              400, oauthException.getError().getErrorCode());
+                                        }))))
         .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
         .exceptionHandling(
             exceptions ->

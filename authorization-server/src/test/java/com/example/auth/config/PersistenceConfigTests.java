@@ -116,4 +116,25 @@ class PersistenceConfigTests {
             jdbcTemplate.queryForObject("select count(*) from oauth2_authorization", Integer.class))
         .isEqualTo(1);
   }
+
+  @Test
+  void persistsAndLoadsLongClaimsUsedByOidcIdToken() {
+    var client = clients.findByClientId("nextjs-client");
+    var authorization =
+        OAuth2Authorization.withRegisteredClient(client)
+            .principalName("user")
+            .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+            .attribute("updated_at", 1_784_120_331L)
+            .build();
+
+    authorizations.save(authorization);
+    try {
+      var loaded = authorizations.findById(authorization.getId());
+
+      assertThat(loaded).isNotNull();
+      assertThat((Long) loaded.getAttribute("updated_at")).isEqualTo(1_784_120_331L);
+    } finally {
+      authorizations.remove(authorization);
+    }
+  }
 }
