@@ -81,19 +81,37 @@ export function ConsentForm() {
               ))}
             </Stack>
           </Box>
-          <Stack direction="row" spacing={1.5}>
-            <Button form="approve-consent" type="submit" variant="contained" fullWidth>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", sm: "repeat(2, minmax(0, 1fr))" },
+              gap: 1.5,
+            }}
+          >
+            <Button
+              form="approve-consent"
+              type="submit"
+              variant="contained"
+              fullWidth
+              sx={{ whiteSpace: "nowrap" }}
+            >
               許可して続行
             </Button>
-            <Box component="form" method="post" action="/oauth2/authorize" sx={{ flex: 1 }}>
+            <Box component="form" method="post" action="/oauth2/authorize">
               <input type="hidden" name="client_id" value={context.clientId} />
               <input type="hidden" name="state" value={context.state} />
               <input type="hidden" name={context.csrf.parameterName} value={context.csrf.token} />
-              <Button type="submit" variant="outlined" color="secondary" fullWidth>
+              <Button
+                type="submit"
+                variant="outlined"
+                color="secondary"
+                fullWidth
+                sx={{ whiteSpace: "nowrap" }}
+              >
                 キャンセル
               </Button>
             </Box>
-          </Stack>
+          </Box>
         </Stack>
       )}
     </AuthShell>
