@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "../styles/globals.css";
+import { AppTheme } from "./AppTheme";
 
 export const metadata: Metadata = {
   title: {
@@ -13,7 +14,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="ja">
-      <body>{children}</body>
+      <body>
+        <AppTheme>{children}</AppTheme>
+      </body>
     </html>
   );
 }
