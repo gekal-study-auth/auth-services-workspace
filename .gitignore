@@ -3,6 +3,9 @@
 **/build/
 client-app/node_modules/
 client-app/.next/
+docs-app/.next/
+docs-app/out/
+docs-app/node_modules/
 client-app/.env.local
 *.tsbuildinfo
 *.iml

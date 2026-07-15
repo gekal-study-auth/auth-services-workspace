@@ -62,16 +62,30 @@ tasks.register('clientFormatCheck', NpmTask) {
     npmCommand = ['run', 'format:check']
 }
 
+tasks.register('docsFormat', NpmTask) {
+    group = 'formatting'
+    description = 'Formats the documentation source files with Prettier.'
+    npmCommand = ['--prefix', '../docs-app', 'run', 'format']
+}
+
+tasks.register('docsFormatCheck', NpmTask) {
+    group = 'verification'
+    description = 'Checks the documentation source files with Prettier.'
+    npmCommand = ['--prefix', '../docs-app', 'run', 'format:check']
+}
+
 tasks.register('formatAll') {
     group = 'formatting'
-    description = 'Formats all Java and client source files.'
+    description = 'Formats all Java, client, and documentation source files.'
     dependsOn tasks.named('spotlessApply')
     dependsOn tasks.named('clientFormat')
+    dependsOn tasks.named('docsFormat')
 }
 
 tasks.register('formatCheck') {
     group = 'verification'
-    description = 'Checks formatting for all Java and client source files.'
+    description = 'Checks formatting for all Java, client, and documentation source files.'
     dependsOn tasks.named('spotlessCheck')
     dependsOn tasks.named('clientFormatCheck')
+    dependsOn tasks.named('docsFormatCheck')
 }

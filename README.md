@@ -134,6 +134,20 @@ RESOURCE_SERVER_PORT=8081 docker compose up -d
 
 PostgreSQL 17で使用していた`auth-postgres-data`ボリュームは自動削除せず保持されます。PostgreSQL 18は`auth-postgres18-data`を使用します。旧DBのデータが必要な場合は、旧コンテナからdumpして新DBへrestoreしてください。
 
+## ドキュメントサイト
+
+`docs-app`はNext.js App Routerで構築したドキュメントサイトです。静的エクスポートは次のコマンドで`docs-app/out`へ生成されます。
+
+```bash
+cd docs-app
+npm install
+npm run build
+```
+
+`main`ブランチへ`docs-app`またはPages workflowの変更をpushすると、`.github/workflows/deploy-docs.yml`が静的ファイルをGitHub Pages artifactとしてアップロードし、Pagesへデプロイします。リポジトリのSettings → Pages → Build and deploymentでSourceを「GitHub Actions」に設定してください。
+
+公開URLは`https://gekal-study-auth.github.io/auth-services-workspace/`です。GitHub Actions上ではリポジトリ名から`basePath`を自動設定し、ローカル開発では`http://localhost:3000`のルートで表示します。
+
 ## エンドポイント
 
 | コンポーネント | エンドポイント | 用途 |
@@ -156,14 +170,14 @@ cd client-app && npm run typecheck && npm run build
 
 ## フォーマット
 
-ルートからJavaとClientのソースをまとめて整形・検査できます。
+ルートからJava、Client、ドキュメントのソースをまとめて整形・検査できます。
 
 ```bash
 ./gradlew formatAll
 ./gradlew formatCheck
 ```
 
-Gradle側は専用のNode.js/npmを自動取得するため、システムの`PATH`にnpmがなくても実行できます。Client依存関係はセットアップ手順の`npm install`で事前に導入してください。
+Gradle側は専用のNode.js/npmを自動取得するため、システムの`PATH`にnpmがなくても実行できます。Clientとドキュメントの依存関係は各ディレクトリで`npm install`を実行して事前に導入してください。
 
 個別に実行する場合は、Java側で`./gradlew spotlessApply`または`spotlessCheck`、Client側で`npm run format`または`format:check`を使用します。
 
