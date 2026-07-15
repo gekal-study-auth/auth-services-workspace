@@ -5,6 +5,9 @@
 **/build
 client-app/.next
 client-app/node_modules
+authorization-ui/.next
+authorization-ui/node_modules
+authorization-ui/out
 client-app/.env.local
 *.iml
 *.tsbuildinfo

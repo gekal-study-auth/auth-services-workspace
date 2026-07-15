@@ -4,7 +4,6 @@ import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
@@ -20,11 +19,16 @@ public class SecurityConfig {
     http.authorizeHttpRequests(
             authorize ->
                 authorize
-                    .requestMatchers("/actuator/health")
+                    .requestMatchers("/actuator/health", "/ui-api/login-context")
                     .permitAll()
                     .anyRequest()
                     .authenticated())
-        .formLogin(Customizer.withDefaults())
+        .formLogin(
+            form ->
+                form.loginPage("/login")
+                    .loginProcessingUrl("/ui-api/login")
+                    .failureUrl("/login?error=invalid_credentials")
+                    .permitAll())
         .sessionManagement(session -> session.maximumSessions(-1).sessionRegistry(sessionRegistry));
     return http.build();
   }

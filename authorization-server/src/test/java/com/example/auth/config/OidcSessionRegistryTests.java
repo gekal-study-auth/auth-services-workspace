@@ -24,7 +24,10 @@ class OidcSessionRegistryTests {
     var result =
         mockMvc
             .perform(
-                post("/login").with(csrf()).param("username", "user").param("password", "password"))
+                post("/ui-api/login")
+                    .with(csrf())
+                    .param("username", "user")
+                    .param("password", "password"))
             .andExpect(status().is3xxRedirection())
             .andReturn();
 

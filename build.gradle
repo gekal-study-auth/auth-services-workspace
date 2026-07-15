@@ -68,6 +68,24 @@ tasks.register('clientTest', NpmTask) {
     npmCommand = ['test']
 }
 
+tasks.register('authorizationUiFormat', NpmTask) {
+    group = 'formatting'
+    description = 'Formats the authorization UI source files with Prettier.'
+    npmCommand = ['--prefix', '../authorization-ui', 'run', 'format']
+}
+
+tasks.register('authorizationUiFormatCheck', NpmTask) {
+    group = 'verification'
+    description = 'Checks the authorization UI source files with Prettier.'
+    npmCommand = ['--prefix', '../authorization-ui', 'run', 'format:check']
+}
+
+tasks.register('authorizationUiBuild', NpmTask) {
+    group = 'verification'
+    description = 'Type-checks and builds the authorization UI.'
+    npmCommand = ['--prefix', '../authorization-ui', 'run', 'build']
+}
+
 tasks.register('docsFormat', NpmTask) {
     group = 'formatting'
     description = 'Formats the documentation source files with Prettier.'
@@ -85,6 +103,7 @@ tasks.register('formatAll') {
     description = 'Formats all Java, client, and documentation source files.'
     dependsOn tasks.named('spotlessApply')
     dependsOn tasks.named('clientFormat')
+    dependsOn tasks.named('authorizationUiFormat')
     dependsOn tasks.named('docsFormat')
 }
 
@@ -93,6 +112,7 @@ tasks.register('formatCheck') {
     description = 'Checks formatting for all Java, client, and documentation source files.'
     dependsOn tasks.named('spotlessCheck')
     dependsOn tasks.named('clientFormatCheck')
+    dependsOn tasks.named('authorizationUiFormatCheck')
     dependsOn tasks.named('docsFormatCheck')
 }
 
@@ -102,4 +122,5 @@ tasks.register('testAll') {
     dependsOn ':authorization-server:test'
     dependsOn ':resource-server:test'
     dependsOn tasks.named('clientTest')
+    dependsOn tasks.named('authorizationUiBuild')
 }

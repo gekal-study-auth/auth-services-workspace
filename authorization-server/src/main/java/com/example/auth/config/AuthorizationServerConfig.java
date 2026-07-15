@@ -43,24 +43,26 @@ public class AuthorizationServerConfig {
         .with(
             authorizationServerConfigurer,
             server ->
-                server.oidc(
-                    oidc ->
-                        oidc.logoutEndpoint(
-                            logout ->
-                                logout
-                                    .logoutResponseHandler(
-                                        new OidcLogoutSuccessHandler(authorizations))
-                                    .errorResponseHandler(
-                                        (request, response, exception) -> {
-                                          OAuth2AuthenticationException oauthException =
-                                              (OAuth2AuthenticationException) exception;
-                                          log.warn(
-                                              "event=oidc_logout_failed error_code={} description={}",
-                                              oauthException.getError().getErrorCode(),
-                                              oauthException.getError().getDescription());
-                                          response.sendError(
-                                              400, oauthException.getError().getErrorCode());
-                                        }))))
+                server
+                    .oidc(
+                        oidc ->
+                            oidc.logoutEndpoint(
+                                logout ->
+                                    logout
+                                        .logoutResponseHandler(
+                                            new OidcLogoutSuccessHandler(authorizations))
+                                        .errorResponseHandler(
+                                            (request, response, exception) -> {
+                                              OAuth2AuthenticationException oauthException =
+                                                  (OAuth2AuthenticationException) exception;
+                                              log.warn(
+                                                  "event=oidc_logout_failed error_code={} description={}",
+                                                  oauthException.getError().getErrorCode(),
+                                                  oauthException.getError().getDescription());
+                                              response.sendError(
+                                                  400, oauthException.getError().getErrorCode());
+                                            })))
+                    .authorizationEndpoint(endpoint -> endpoint.consentPage("/oauth2/consent")))
         .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
         .exceptionHandling(
             exceptions ->

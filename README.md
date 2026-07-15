@@ -1,15 +1,16 @@
 # Auth Services Workspace
 
-OAuth 2.1 / OpenID Connect のAuthorization Code Flowを、3つの独立したコンポーネントで検証する学習用モノレポです。クライアントはPKCE（S256）を使用し、リソースサーバーは認可サーバーのJWKSを通じてJWT署名を検証します。
+OAuth 2.1 / OpenID Connect のAuthorization Code Flowを検証する学習用モノレポです。クライアントはPKCE（S256）を使用し、リソースサーバーは認可サーバーのJWKSを通じてJWT署名を検証します。
 
 ## 構成
 
 ```text
 auth-services-workspace/
 ├── authorization-server/  Spring Authorization Server（:9000）
+├── authorization-ui/      Next.js App Router + MUI（静的エクスポート）
 ├── resource-server/       OAuth2 Resource Server（:8080）
 ├── client-app/            Next.js App Router / BFF（:3000）
-└── docker-compose.yml     PostgreSQL（:5432）
+└── docker-compose.yml     PostgreSQL・Nginxを含む実行環境
 ```
 
 フローは次のとおりです。
@@ -47,6 +48,9 @@ openssl rand -base64 32
 
 ```bash
 cd client-app
+npm install
+
+cd ../authorization-ui
 npm install
 ```
 
@@ -146,6 +150,7 @@ RESOURCE_SERVER_PORT=8081 docker compose up -d
 - Spring BootサービスはTemurin 17 / Ubuntu 24.04 LTS（Noble）を使用し、layered JARとして依存関係とアプリケーションを分離します。
 - JavaランタイムのOSパッケージはビルド時に更新し、非rootユーザーで実行します。
 - Client AppはNode.js `24.12.0-bookworm-slim`でビルドし、Next.js standalone成果物のみを実行イメージへ格納します。
+- Authorization UIはNext.js App Routerで静的エクスポートし、Node.jsサーバーを起動せずNginxから配信します。
 - BuildKitのGradle・npmキャッシュを使用し、再ビルド時の依存取得を抑えます。
 
 PostgreSQL 17で使用していた`auth-postgres-data`ボリュームは自動削除せず保持されます。PostgreSQL 18は`auth-postgres18-data`を使用します。旧DBのデータが必要な場合は、旧コンテナからdumpして新DBへrestoreしてください。
@@ -173,6 +178,10 @@ npm run build
 | Authorization Server | `/oauth2/token` | トークン発行 |
 | Authorization Server | `/oauth2/jwks` | 公開鍵（JWKS） |
 | Authorization Server | `/connect/logout` | OIDC Provider Sessionの終了 |
+| Authorization UI | `/login` | MUIログイン画面（静的配信） |
+| Authorization UI | `/oauth2/consent` | MUI同意画面（静的配信） |
+| Authorization Server | `/ui-api/login-context` | ログイン画面用CSRFコンテキスト |
+| Authorization Server | `/ui-api/consent-context` | Client・Scope・CSRF同意コンテキスト |
 | Resource Server | `/api/user` | `profile`スコープ必須のAPI |
 | Resource Server | `/api/resources` | `sub`が所有するDBデータを返す保護API |
 | Client Application | `/api/auth/login` | PKCE認可フロー開始 |
