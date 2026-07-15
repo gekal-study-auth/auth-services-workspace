@@ -35,6 +35,7 @@ services:
       AUTH_DB_USERNAME: *db-user
       AUTH_DB_PASSWORD: *db-password
       AUTH_ISSUER: https://authorization-server.local.gekal.cn
+      API_LOGGING_INCLUDE_BODY: "true"
       SERVER_FORWARD_HEADERS_STRATEGY: framework
     ports:
       - "${AUTHORIZATION_SERVER_PORT:-9000}:9000"
@@ -59,6 +60,7 @@ services:
     environment:
       AUTHORIZATION_SERVER_ISSUER: https://authorization-server.local.gekal.cn
       AUTHORIZATION_SERVER_JWK_SET_URI: http://authorization-server:9000/oauth2/jwks
+      API_LOGGING_INCLUDE_BODY: "true"
       SERVER_FORWARD_HEADERS_STRATEGY: framework
     ports:
       - "${RESOURCE_SERVER_PORT:-8080}:8080"
@@ -115,6 +117,8 @@ services:
       context: .
       dockerfile: nginx/Dockerfile
     container_name: auth-services-nginx
+    logging:
+      driver: none
     ports:
       - "${HTTPS_PORT:-443}:443"
     depends_on:
@@ -124,12 +128,6 @@ services:
         condition: service_healthy
       client-app:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "--insecure", "--fail", "--silent", "https://localhost/"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-      start_period: 5s
     restart: unless-stopped
     init: true
 
