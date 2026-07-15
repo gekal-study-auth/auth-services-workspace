@@ -14,7 +14,7 @@ public class ResourceServerConfig {
                 authorize
                     .requestMatchers("/", "/actuator/health")
                     .permitAll()
-                    .requestMatchers("/api/user")
+                    .requestMatchers("/api/user", "/api/resources")
                     .hasAuthority("SCOPE_profile")
                     .anyRequest()
                     .authenticated())

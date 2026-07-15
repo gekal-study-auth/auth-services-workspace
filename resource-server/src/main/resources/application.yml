@@ -2,6 +2,15 @@ server:
   port: 8080
 
 spring:
+  datasource:
+    url: ${RESOURCE_DB_URL:jdbc:postgresql://localhost:5432/auth_services?currentSchema=resource_server}
+    username: ${RESOURCE_DB_USERNAME:auth_user}
+    password: ${RESOURCE_DB_PASSWORD:auth_password}
+  flyway:
+    locations: classpath:db/migration
+    schemas: resource_server
+    default-schema: resource_server
+    create-schemas: true
   security:
     oauth2:
       resourceserver:

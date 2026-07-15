@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:resource;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1;INIT=CREATE SCHEMA IF NOT EXISTS resource_server\;SET SCHEMA resource_server
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  flyway:
+    locations: classpath:db/migration
+    schemas: resource_server
+    default-schema: resource_server
+    create-schemas: true

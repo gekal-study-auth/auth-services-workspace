@@ -3,11 +3,14 @@ server:
 
 spring:
   datasource:
-    url: ${AUTH_DB_URL:jdbc:postgresql://localhost:5432/auth_services}
+    url: ${AUTH_DB_URL:jdbc:postgresql://localhost:5432/auth_services?currentSchema=authorization_server}
     username: ${AUTH_DB_USERNAME:auth_user}
     password: ${AUTH_DB_PASSWORD:auth_password}
   flyway:
     locations: classpath:db/migration
+    schemas: authorization_server
+    default-schema: authorization_server
+    create-schemas: true
 
 logging:
   level:

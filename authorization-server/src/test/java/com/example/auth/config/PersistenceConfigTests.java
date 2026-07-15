@@ -2,6 +2,7 @@ package com.example.auth.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.example.auth.model.UserProfileRepository;
 import java.time.Instant;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,7 @@ class PersistenceConfigTests {
   @Autowired RegisteredClientRepository clients;
   @Autowired OAuth2AuthorizationService authorizations;
   @Autowired OAuth2AuthorizationConsentService consents;
+  @Autowired UserProfileRepository profiles;
 
   @Test
   void loadsSeedUserAndJdbcOAuthServices() {
@@ -39,6 +41,13 @@ class PersistenceConfigTests {
         .isEqualTo("JdbcOAuth2AuthorizationService");
     assertThat(consents.getClass().getSimpleName())
         .isEqualTo("JdbcOAuth2AuthorizationConsentService");
+    assertThat(profiles.findByUsername("user"))
+        .get()
+        .satisfies(
+            profile -> {
+              assertThat(profile.displayName()).isEqualTo("Demo User");
+              assertThat(profile.locale()).isEqualTo("ja-JP");
+            });
     assertThat(
             jdbcTemplate.queryForObject(
                 "select count(*) from oauth2_registered_client", Integer.class))

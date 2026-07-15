@@ -12,14 +12,19 @@ export default async function Dashboard() {
   const session = unseal<TokenSession>(cookieStore.get("auth_session")?.value);
   if (!session || session.expiresAt <= Date.now()) redirect("/");
 
-  const response = await fetch(`${oauthConfig.resourceServerUrl}/api/user`, {
+  const requestOptions = {
     headers: { Authorization: `Bearer ${session.accessToken}` },
-    cache: "no-store",
-  });
-  if (!response.ok) redirect("/api/auth/logout");
+    cache: "no-store" as const,
+  };
+  const [userResponse, resourcesResponse] = await Promise.all([
+    fetch(`${oauthConfig.resourceServerUrl}/api/user`, requestOptions),
+    fetch(`${oauthConfig.resourceServerUrl}/api/resources`, requestOptions),
+  ]);
+  if (!userResponse.ok || !resourcesResponse.ok) redirect("/api/auth/logout");
 
   const idClaims = decodeJwtPayload(session.idToken);
-  const apiUser = (await response.json()) as Record<string, unknown>;
+  const apiUser = (await userResponse.json()) as Record<string, unknown>;
+  const resources = (await resourcesResponse.json()) as Record<string, unknown>[];
 
   return (
     <main className="shell">
@@ -34,6 +39,10 @@ export default async function Dashboard() {
           <div>
             <h2>保護APIの応答</h2>
             <pre>{JSON.stringify(apiUser, null, 2)}</pre>
+          </div>
+          <div>
+            <h2>DBに保存された保護リソース</h2>
+            <pre>{JSON.stringify(resources, null, 2)}</pre>
           </div>
         </div>
         <a className="secondary" href="/api/auth/logout">

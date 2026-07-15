@@ -1,5 +1,6 @@
 package com.example.auth.config;
 
+import com.example.auth.model.UserProfileRepository;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
@@ -20,6 +21,8 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
+import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
+import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -73,5 +76,28 @@ public class AuthorizationServerConfig {
   AuthorizationServerSettings authorizationServerSettings(
       @Value("${auth.issuer:http://localhost:9000}") String issuer) {
     return AuthorizationServerSettings.builder().issuer(issuer).build();
+  }
+
+  @Bean
+  OAuth2TokenCustomizer<JwtEncodingContext> profileClaimsCustomizer(
+      UserProfileRepository profiles) {
+    return context -> {
+      if (!context.getAuthorizedScopes().contains("profile")) {
+        return;
+      }
+      profiles
+          .findByUsername(context.getPrincipal().getName())
+          .ifPresent(
+              profile ->
+                  context
+                      .getClaims()
+                      .claim("name", profile.displayName())
+                      .claim("given_name", profile.givenName())
+                      .claim("family_name", profile.familyName())
+                      .claim("preferred_username", profile.username())
+                      .claim("locale", profile.locale())
+                      .claim("picture", profile.pictureUrl())
+                      .claim("updated_at", profile.updatedAt().getEpochSecond()));
+    };
   }
 }

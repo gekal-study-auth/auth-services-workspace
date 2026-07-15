@@ -31,7 +31,7 @@ services:
     image: auth-services/authorization-server:local
     container_name: auth-services-authorization-server
     environment:
-      AUTH_DB_URL: &db-url jdbc:postgresql://postgres:5432/auth_services
+      AUTH_DB_URL: jdbc:postgresql://postgres:5432/auth_services?currentSchema=authorization_server
       AUTH_DB_USERNAME: *db-user
       AUTH_DB_PASSWORD: *db-password
       AUTH_ISSUER: https://authorization-server.local.gekal.cn
@@ -58,6 +58,9 @@ services:
     image: auth-services/resource-server:local
     container_name: auth-services-resource-server
     environment:
+      RESOURCE_DB_URL: jdbc:postgresql://postgres:5432/auth_services?currentSchema=resource_server
+      RESOURCE_DB_USERNAME: *db-user
+      RESOURCE_DB_PASSWORD: *db-password
       AUTHORIZATION_SERVER_ISSUER: https://authorization-server.local.gekal.cn
       AUTHORIZATION_SERVER_JWK_SET_URI: http://authorization-server:9000/oauth2/jwks
       API_LOGGING_INCLUDE_BODY: "true"
@@ -65,6 +68,8 @@ services:
     ports:
       - "${RESOURCE_SERVER_PORT:-8080}:8080"
     depends_on:
+      postgres:
+        condition: service_healthy
       authorization-server:
         condition: service_healthy
     healthcheck:
