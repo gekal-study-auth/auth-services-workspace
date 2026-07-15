@@ -1,7 +1,5 @@
 package com.example.api.config;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import java.util.LinkedHashMap;
@@ -16,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 @Aspect
 @Component
@@ -82,7 +82,7 @@ public class ControllerMethodLoggingAspect {
   private String serialize(Object value) {
     try {
       return objectMapper.writeValueAsString(value);
-    } catch (JsonProcessingException error) {
+    } catch (JacksonException error) {
       return '"' + String.valueOf(value) + '"';
     }
   }
