@@ -206,3 +206,11 @@ Gradle側は専用のNode.js/npmを自動取得するため、システムの`PA
 - JWT、認可コード、トークンメタデータはSpring Authorization ServerのJDBCサービスにより保存されます。
 - `state`はログインCSRF対策、`nonce`はIDトークンのリプレイ対策としてコールバックで照合します。
 - 本番ではHTTPS、永続的な署名鍵、安全な秘密管理、永続セッションストア、鍵ローテーション、audience検証などを追加してください。
+
+## アプリケーションログ
+
+- Nginxは`/api/`、`/oauth2/`、`/.well-known/`へのアクセスだけをJSON形式で標準出力へ記録します。通常ページとHealth Checkはアクセスログへ出しません。
+- NginxのAPIアクセスログにはRequest ID、Host、Method、URI、Status、通信量、処理時間、upstream情報を含めます。
+- Spring Bootは`@RestController`のメソッド完了時にController名、メソッド名、引数、戻り値、処理時間を記録し、例外時は例外型とメッセージを記録します。
+- `X-Request-ID`をNginxからSpring Bootへ引き継ぎ、Controllerログとの対応を追跡できます。
+- JWT引数はToken文字列を出さずClaimsとして記録し、password、secret、token、code、verifierなどの名前を持つ引数はマスクします。

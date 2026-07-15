@@ -13,6 +13,7 @@ dependencies {
     implementation libs.spring.boot.starter.security
     implementation libs.spring.boot.starter.jdbc
     implementation libs.spring.boot.starter.actuator
+    implementation libs.spring.boot.starter.aop
     implementation libs.spring.boot.starter.oauth2.authorization.server
     implementation libs.mybatis.spring.boot.starter
     implementation libs.flyway.core
