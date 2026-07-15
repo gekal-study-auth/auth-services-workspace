@@ -5,14 +5,11 @@ import { oauthConfig } from "../../lib/config";
 import { decodeJwtPayload, type TokenSession } from "../../lib/oauth";
 import { unseal } from "../../lib/sealed-cookie";
 import { listAuthEventsPage } from "../../lib/auth-audit";
+import { AuthAuditTable } from "./AuthAuditTable";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
-type DashboardProps = {
-  searchParams: Promise<{ auditPage?: string | string[] }>;
-};
-
-export default async function Dashboard({ searchParams }: DashboardProps) {
+export default async function Dashboard() {
   const cookieStore = await cookies();
   const session = unseal<TokenSession>(cookieStore.get("auth_session")?.value);
   if (!session || session.expiresAt <= Date.now()) redirect("/");
@@ -31,11 +28,8 @@ export default async function Dashboard({ searchParams }: DashboardProps) {
   const apiUser = (await userResponse.json()) as Record<string, unknown>;
   const resources = (await resourcesResponse.json()) as Record<string, unknown>[];
   const subject = typeof idClaims.sub === "string" ? idClaims.sub : "";
-  const params = await searchParams;
-  const auditPageValue = Array.isArray(params.auditPage) ? params.auditPage[0] : params.auditPage;
-  const requestedAuditPage = Number.parseInt(auditPageValue ?? "1", 10);
   const authEvents = subject
-    ? await listAuthEventsPage(subject, requestedAuditPage, 10)
+    ? await listAuthEventsPage(subject, 1, 10)
     : { events: [], page: 1, pageSize: 10, totalItems: 0, totalPages: 1 };
 
   return (
@@ -67,58 +61,16 @@ export default async function Dashboard({ searchParams }: DashboardProps) {
               <h2 id="auth-audit-heading">Client Appの認証監査ログ</h2>
               <p>{authEvents.totalItems}件のイベント</p>
             </div>
-            <span>
-              {authEvents.page} / {authEvents.totalPages}ページ
-            </span>
           </div>
-          <div className="table-scroll">
-            <table className="audit-table">
-              <thead>
-                <tr>
-                  <th scope="col">日時</th>
-                  <th scope="col">イベント</th>
-                  <th scope="col">ユーザー</th>
-                  <th scope="col">詳細</th>
-                </tr>
-              </thead>
-              <tbody>
-                {authEvents.events.length === 0 ? (
-                  <tr>
-                    <td colSpan={4} className="empty-cell">
-                      認証イベントはまだありません。
-                    </td>
-                  </tr>
-                ) : (
-                  authEvents.events.map((event) => (
-                    <tr key={event.id}>
-                      <td>
-                        {event.occurredAt.toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}
-                      </td>
-                      <td>
-                        <span className="event-badge">{event.eventType}</span>
-                      </td>
-                      <td>{event.subject ?? "—"}</td>
-                      <td>
-                        <code>{JSON.stringify(event.detail)}</code>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-          <nav className="pagination" aria-label="認証監査ログのページ">
-            {authEvents.page > 1 ? (
-              <a href={`/dashboard?auditPage=${authEvents.page - 1}`}>前のページ</a>
-            ) : (
-              <span aria-disabled="true">前のページ</span>
-            )}
-            {authEvents.page < authEvents.totalPages ? (
-              <a href={`/dashboard?auditPage=${authEvents.page + 1}`}>次のページ</a>
-            ) : (
-              <span aria-disabled="true">次のページ</span>
-            )}
-          </nav>
+          <AuthAuditTable
+            events={authEvents.events.map((event) => ({
+              ...event,
+              occurredAt: event.occurredAt.toISOString(),
+            }))}
+            page={authEvents.page}
+            pageSize={authEvents.pageSize}
+            totalItems={authEvents.totalItems}
+          />
         </section>
       </section>
     </main>
