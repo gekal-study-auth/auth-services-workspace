@@ -50,6 +50,12 @@ class PersistenceConfigTests {
             profile -> {
               assertThat(profile.displayName()).isEqualTo("Demo User");
               assertThat(profile.locale()).isEqualTo("ja-JP");
+              assertThat(profile.email()).isEqualTo("demo.user@example.com");
+              assertThat(profile.emailVerified()).isTrue();
+              assertThat(profile.addressCountry()).isEqualTo("JP");
+              assertThat(profile.addressPostalCode()).isEqualTo("100-0001");
+              assertThat(profile.phoneNumber()).isEqualTo("+81-90-1234-5678");
+              assertThat(profile.phoneNumberVerified()).isTrue();
             });
     assertThat(
             jdbcTemplate.queryForObject(
