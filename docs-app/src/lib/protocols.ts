@@ -1,3 +1,5 @@
+import { additionalProtocols } from "./additional-protocols";
+
 export type FlowActor = { id: string; name: string; detail: string };
 export type FlowStep = {
   from: string;
@@ -17,6 +19,8 @@ export type Protocol = {
   actors: FlowActor[];
   steps: FlowStep[];
   highlights: { label: string; value: string }[];
+  family?: "OAuth 2.0" | "OAuth 2.1" | "OpenID Connect";
+  status?: "recommended" | "specialized" | "legacy";
 };
 
 const actors: FlowActor[] = [
@@ -26,7 +30,7 @@ const actors: FlowActor[] = [
   { id: "api", name: "Resource", detail: "Protected API" },
 ];
 
-export const protocols: Protocol[] = [
+const coreProtocols: Protocol[] = [
   {
     slug: "oauth-2-0",
     shortName: "OAuth 2.0",
@@ -264,4 +268,5 @@ export const protocols: Protocol[] = [
   },
 ];
 
+export const protocols: Protocol[] = [...coreProtocols, ...additionalProtocols];
 export const getProtocol = (slug: string) => protocols.find((item) => item.slug === slug);

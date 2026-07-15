@@ -1,8 +1,14 @@
 import { AnimatedFlowDiagram } from "./AnimatedFlowDiagram";
 import type { Protocol } from "../lib/protocols";
 import { protocols } from "../lib/protocols";
+import { specifications } from "../lib/specs";
 
 export function ProtocolFlowPage({ protocol }: { protocol: Protocol }) {
+  const specification = specifications.find((item) => item.flowSlugs.includes(protocol.slug));
+  const relatedFlows = (specification?.flowSlugs ?? [])
+    .filter((slug) => slug !== protocol.slug)
+    .map((slug) => protocols.find((item) => item.slug === slug)!)
+    .slice(0, 3);
   return (
     <div className={`protocolPage ${protocol.accent}`}>
       <header className="protocolHeader">
@@ -12,13 +18,13 @@ export function ProtocolFlowPage({ protocol }: { protocol: Protocol }) {
             <span>Auth Services</span>
           </a>
           <div className="protocolTabs">
-            {protocols.map((item) => (
+            {specifications.map((item) => (
               <a
-                className={item.slug === protocol.slug ? "active" : ""}
-                href={`/flows/${item.slug}/`}
+                className={item.slug === specification?.slug ? "active" : ""}
+                href={`/specs/${item.slug}/`}
                 key={item.slug}
               >
-                {item.shortName}
+                {item.name}
               </a>
             ))}
           </div>
@@ -31,6 +37,9 @@ export function ProtocolFlowPage({ protocol }: { protocol: Protocol }) {
             <p className="sectionLabel">{protocol.eyebrow}</p>
             <h1>{protocol.title}</h1>
             <p className="protocolSummary">{protocol.summary}</p>
+            {protocol.status === "legacy" && (
+              <div className="legacyNotice">Legacy flow — 新規実装では使用しないでください</div>
+            )}
           </div>
           <div className="protocolFacts">
             {protocol.highlights.map((item) => (
@@ -50,15 +59,13 @@ export function ProtocolFlowPage({ protocol }: { protocol: Protocol }) {
             <h2>仕様の違いを、フローで比較する。</h2>
           </div>
           <div className="comparisonLinks">
-            {protocols
-              .filter((item) => item.slug !== protocol.slug)
-              .map((item) => (
-                <a href={`/flows/${item.slug}/`} key={item.slug}>
-                  <span>{item.eyebrow.split(" /")[0]}</span>
-                  <strong>{item.shortName}</strong>
-                  <i>→</i>
-                </a>
-              ))}
+            {relatedFlows.map((item) => (
+              <a href={`/flows/${item.slug}/`} key={item.slug}>
+                <span>{item.eyebrow.split(" /")[0]}</span>
+                <strong>{item.shortName}</strong>
+                <i>→</i>
+              </a>
+            ))}
           </div>
         </section>
       </main>

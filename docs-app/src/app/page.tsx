@@ -69,7 +69,7 @@ export default function Documentation() {
           </a>
           <div className="navLinks">
             <a href="#architecture">Architecture</a>
-            <a href="/flows/oauth-2-1/">Flows</a>
+            <a href="/flows/">Flows</a>
             <a href="#start">Quick start</a>
           </div>
           <a className="navCta" href="https://github.com/gekal-study-auth/auth-services-workspace">
