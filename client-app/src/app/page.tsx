@@ -5,6 +5,8 @@ type HomeProps = {
 const errorMessages: Record<string, string> = {
   access_denied:
     "認可がキャンセルされました。再試行する場合は、同意画面でprofileスコープを選択してから許可してください。",
+  invalid_transaction:
+    "ログイン処理の有効期限が切れたか、別のログイン操作によって更新されました。ログインを最初からやり直してください。",
   oauth_error: "認可処理を完了できませんでした。ログインを最初からやり直してください。",
 };
 

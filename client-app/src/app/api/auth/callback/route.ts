@@ -9,6 +9,14 @@ export const runtime = "nodejs";
 
 type TokenResponse = { access_token: string; id_token: string; expires_in: number };
 
+function redirectWithAuthError(errorCode: string) {
+  const response = NextResponse.redirect(
+    new URL(`/?auth_error=${encodeURIComponent(errorCode)}`, oauthConfig.appBaseUrl),
+  );
+  response.cookies.set("oauth_transaction", "", secureCookie(0));
+  return response;
+}
+
 export async function GET(request: NextRequest) {
   const error = request.nextUrl.searchParams.get("error");
   const state = request.nextUrl.searchParams.get("state");
@@ -16,11 +24,7 @@ export async function GET(request: NextRequest) {
   if (error) {
     const validState = Boolean(state && transaction && state === transaction.state);
     const errorCode = validState && error === "access_denied" ? "access_denied" : "oauth_error";
-    const response = NextResponse.redirect(
-      new URL(`/?auth_error=${encodeURIComponent(errorCode)}`, oauthConfig.appBaseUrl),
-    );
-    response.cookies.set("oauth_transaction", "", secureCookie(0));
-    return response;
+    return redirectWithAuthError(errorCode);
   }
 
   const code = request.nextUrl.searchParams.get("code");
@@ -31,7 +35,7 @@ export async function GET(request: NextRequest) {
     state !== transaction.state ||
     Date.now() - transaction.createdAt > 600_000
   ) {
-    return NextResponse.json({ error: "Invalid or expired OAuth transaction" }, { status: 400 });
+    return redirectWithAuthError("invalid_transaction");
   }
 
   const tokenResponse = await fetch(`${oauthConfig.authorizationServerInternalUrl}/oauth2/token`, {
