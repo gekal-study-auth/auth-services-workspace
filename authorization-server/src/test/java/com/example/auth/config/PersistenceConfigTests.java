@@ -3,12 +3,17 @@ package com.example.auth.config;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.example.auth.model.UserProfileMapper;
+import java.security.Principal;
 import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -122,6 +127,42 @@ class PersistenceConfigTests {
     assertThat(
             jdbcTemplate.queryForObject("select count(*) from oauth2_authorization", Integer.class))
         .isEqualTo(1);
+  }
+
+  @Test
+  void persistsPrincipalCarryingFactorGrantedAuthorityIssuedAt() {
+    var client = clients.findByClientId("nextjs-client");
+    var factor =
+        FactorGrantedAuthority.withAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY)
+            .issuedAt(Instant.parse("2026-07-16T00:00:00Z"))
+            .build();
+    var principal =
+        UsernamePasswordAuthenticationToken.authenticated("user", null, List.of(factor));
+    var authorization =
+        OAuth2Authorization.withRegisteredClient(client)
+            .principalName("user")
+            .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+            .attribute(Principal.class.getName(), principal)
+            .build();
+
+    // Before registering the JSR-310 module the java.time.Instant on
+    // FactorGrantedAuthority made this save fail with InvalidDefinitionException.
+    authorizations.save(authorization);
+    try {
+      var loaded = authorizations.findById(authorization.getId());
+
+      assertThat(loaded).isNotNull();
+      Authentication loadedPrincipal = loaded.getAttribute(Principal.class.getName());
+      assertThat(loadedPrincipal.getAuthorities())
+          .anySatisfy(
+              authority -> {
+                assertThat(authority).isInstanceOf(FactorGrantedAuthority.class);
+                assertThat(((FactorGrantedAuthority) authority).getIssuedAt())
+                    .isEqualTo(Instant.parse("2026-07-16T00:00:00Z"));
+              });
+    } finally {
+      authorizations.remove(authorization);
+    }
   }
 
   @Test

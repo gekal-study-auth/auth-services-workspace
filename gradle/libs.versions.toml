@@ -3,7 +3,7 @@ java = "17"
 nodejs = "24.12.0"
 node-gradle = "7.1.0"
 mybatis = "4.0.1"
-spring-boot = "4.0.7"
+spring-boot = "4.1.0"
 spring-dependency-management = "1.1.7"
 spotless = "8.8.0"
 

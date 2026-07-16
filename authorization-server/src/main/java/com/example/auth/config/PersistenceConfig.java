@@ -1,8 +1,6 @@
 package com.example.auth.config;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.Module;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.UUID;
 import javax.sql.DataSource;
@@ -12,22 +10,24 @@ import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.jackson2.SecurityJackson2Modules;
+import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationConsentService;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
-import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService.OAuth2AuthorizationParametersMapper;
-import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService.OAuth2AuthorizationRowMapper;
+import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService.JsonMapperOAuth2AuthorizationParametersMapper;
+import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService.JsonMapperOAuth2AuthorizationRowMapper;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
-import org.springframework.security.oauth2.server.authorization.jackson2.OAuth2AuthorizationServerJackson2Module;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
+import tools.jackson.databind.JacksonModule;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
 @Configuration
 public class PersistenceConfig {
@@ -66,12 +66,11 @@ public class PersistenceConfig {
   @Bean
   OAuth2AuthorizationService authorizationService(
       JdbcOperations jdbcOperations, RegisteredClientRepository clients) {
-    ObjectMapper objectMapper = authorizationObjectMapper();
-    OAuth2AuthorizationRowMapper rowMapper = new OAuth2AuthorizationRowMapper(clients);
-    rowMapper.setObjectMapper(objectMapper);
-    OAuth2AuthorizationParametersMapper parametersMapper =
-        new OAuth2AuthorizationParametersMapper();
-    parametersMapper.setObjectMapper(objectMapper);
+    JsonMapper jsonMapper = authorizationJsonMapper();
+    JsonMapperOAuth2AuthorizationRowMapper rowMapper =
+        new JsonMapperOAuth2AuthorizationRowMapper(clients, jsonMapper);
+    JsonMapperOAuth2AuthorizationParametersMapper parametersMapper =
+        new JsonMapperOAuth2AuthorizationParametersMapper(jsonMapper);
 
     JdbcOAuth2AuthorizationService service =
         new JdbcOAuth2AuthorizationService(jdbcOperations, clients);
@@ -80,14 +79,23 @@ public class PersistenceConfig {
     return service;
   }
 
-  private static ObjectMapper authorizationObjectMapper() {
-    ObjectMapper objectMapper = new ObjectMapper();
+  private static JsonMapper authorizationJsonMapper() {
     ClassLoader classLoader = JdbcOAuth2AuthorizationService.class.getClassLoader();
-    List<Module> securityModules = SecurityJackson2Modules.getModules(classLoader);
-    objectMapper.registerModules(securityModules);
-    objectMapper.registerModule(new OAuth2AuthorizationServerJackson2Module());
-    objectMapper.addMixIn(Long.class, LongMixin.class);
-    return objectMapper;
+    // The LongMixin tags numeric OIDC claims (e.g. updated_at) with their concrete type so
+    // they survive a JSON round-trip as Long instead of being read back as Integer. Jackson
+    // 3's security modules validate every @class type id against an allowlist, so java.lang.Long
+    // must be permitted explicitly for deserialization to succeed.
+    BasicPolymorphicTypeValidator.Builder typeValidator =
+        BasicPolymorphicTypeValidator.builder().allowIfSubType(Long.class);
+    // Spring Security 7.0 folded the Authorization Server in and serializes authorizations
+    // with Jackson 3; getModules() registers the OAuth2/security mixins (and java.time
+    // support, which Jackson 3 has in core) so no jackson-datatype-jsr310 is needed.
+    List<JacksonModule> securityModules =
+        SecurityJacksonModules.getModules(classLoader, typeValidator);
+    return JsonMapper.builder()
+        .addModules(securityModules)
+        .addMixIn(Long.class, LongMixin.class)
+        .build();
   }
 
   @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
