@@ -2,6 +2,8 @@ server:
   port: 8080
 
 spring:
+  application:
+    name: resource-server
   datasource:
     url: ${RESOURCE_DB_URL:jdbc:postgresql://localhost:5432/auth_services?currentSchema=resource_server}
     username: ${RESOURCE_DB_USERNAME:auth_user}
@@ -17,6 +19,11 @@ spring:
         jwt:
           issuer-uri: ${AUTHORIZATION_SERVER_ISSUER:http://localhost:9000}
           jwk-set-uri: ${AUTHORIZATION_SERVER_JWK_SET_URI:http://localhost:9000/oauth2/jwks}
+
+logging:
+  structured:
+    format:
+      console: ${LOGGING_STRUCTURED_FORMAT_CONSOLE:}
 
 management:
   endpoints:

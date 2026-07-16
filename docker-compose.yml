@@ -4,6 +4,9 @@ x-db-config: &db-config
   POSTGRES_PASSWORD: &db-password auth_password
 
 services:
+  # Postgres logs stay plain text: log_destination=jsonlog requires logging_collector,
+  # which writes to files rather than the stdout Dozzle reads, and its JSON schema is
+  # Postgres' own rather than Logstash's.
   postgres:
     image: auth-services/postgres:18.4-bookworm
     build:
@@ -36,6 +39,7 @@ services:
       AUTH_DB_PASSWORD: *db-password
       AUTH_ISSUER: https://authorization-server.local.gekal.cn
       SERVER_FORWARD_HEADERS_STRATEGY: framework
+      LOGGING_STRUCTURED_FORMAT_CONSOLE: logstash
     ports:
       - "${AUTHORIZATION_SERVER_PORT:-9000}:9000"
     depends_on:
@@ -63,6 +67,7 @@ services:
       AUTHORIZATION_SERVER_ISSUER: https://authorization-server.local.gekal.cn
       AUTHORIZATION_SERVER_JWK_SET_URI: http://authorization-server:9000/oauth2/jwks
       SERVER_FORWARD_HEADERS_STRATEGY: framework
+      LOGGING_STRUCTURED_FORMAT_CONSOLE: logstash
     ports:
       - "${RESOURCE_SERVER_PORT:-8080}:8080"
     depends_on:
@@ -133,8 +138,20 @@ services:
         condition: service_healthy
       client-app:
         condition: service_healthy
+      dozzle:
+        condition: service_started
     restart: unless-stopped
     init: true
 
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: auth-services-dozzle
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - dozzle_data:/data
+    ports:
+      - "${DOZZLE_PORT:-9999}:8080"
+    restart: unless-stopped
 volumes:
   auth-postgres18-data:
+  dozzle_data:

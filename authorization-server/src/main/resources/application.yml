@@ -2,6 +2,8 @@ server:
   port: 9000
 
 spring:
+  application:
+    name: authorization-server
   datasource:
     url: ${AUTH_DB_URL:jdbc:postgresql://localhost:5432/auth_services?currentSchema=authorization_server}
     username: ${AUTH_DB_USERNAME:auth_user}
@@ -13,6 +15,9 @@ spring:
     create-schemas: true
 
 logging:
+  structured:
+    format:
+      console: ${LOGGING_STRUCTURED_FORMAT_CONSOLE:}
   level:
     org.springframework.security: INFO
 
